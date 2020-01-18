@@ -1,13 +1,6 @@
 import logging
 import json
 
-from habitipy import Habitipy
-conf = {
-    'url': 'https://habitica.com',
-    'login': '43a51e03-bf00-4832-a47e-411ec309466f',
-    'password': 'ff4bc2bc-a9d8-4e87-831e-e6b886466bec'
-api = Habitipy(conf)
-print(api.user.get())
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 from telegram.ext import (
