@@ -51,13 +51,11 @@ def token_id(update, context):
 
 
 def create_tasks(update, context):
-    print("func entered")
-    task_type = update.effective_message.text.split("#create ", 1)[0]
-    title = update.effective_message.text.split("#create ", 1)[1]
-    print(task_type)
+    task_type = update.effective_message.text.split()[1]
+    title = update.effective_message.text.split()[2:]
     resp = api.create_task(title, task_type)
     if resp.status_code != 201:
-        raise requests.HTTPError("Cannot create task: {}".format(resp.status_code))
+        print("Cannot create task: {}".format(resp.status_code))
     print("Created task. ID: {}".format(resp.json()["id"]))
     context.bot.send_message(chat_id=update.effective_chat.id, text="creating nothing")
 
@@ -65,7 +63,6 @@ def create_tasks(update, context):
 def command_handle(update, context):
     create = "#create"
     if create in update.message.text:
-        print("creating something", update.effective_message.text)
         create_tasks(update, context)
     else:
         context.bot.send_message(
