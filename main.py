@@ -112,6 +112,20 @@ def create_tasks_habit(update, context):
 
     return ConversationHandler.END
 
+def me(update, context):
+    reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
+
+    update.message.reply_text(
+        user.first_name, ", these are your stats!",
+        ),
+    )
+
+    return TASK_NAME
+
+def stats(update, context):
+    update.message.reply_text("These are your stats!")
+    return = api.userdata()
+
 
 def view(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
