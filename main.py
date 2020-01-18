@@ -1,13 +1,15 @@
 import logging
 import json
 
-from habitipy import Habitipy
+# from habitipy import Habitipy
+
 conf = {
-    'url': 'https://habitica.com',
-    'login': '43a51e03-bf00-4832-a47e-411ec309466f',
-    'password': 'ff4bc2bc-a9d8-4e87-831e-e6b886466bec'
-api = Habitipy(conf)
-print(api.user.get())
+    "url": "https://habitica.com",
+    "login": "43a51e03-bf00-4832-a47e-411ec309466f",
+    "password": "ff4bc2bc-a9d8-4e87-831e-e6b886466bec",
+}
+# api = Habitipy(conf)
+# print(api.user.get())
 
 from telegram import (
     ReplyKeyboardMarkup,
@@ -180,7 +182,8 @@ def view(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
 
     update.message.reply_text(
-        "What task would you like me to check on?\n" "Send /cancel to do something else.\n\n",
+        "What task would you like me to check on?\n"
+        "Send /cancel to do something else.\n\n",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
@@ -282,25 +285,26 @@ def cancel(update, context):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        "Bye! Let me know when you want to come back to Rhabbitica.", reply_markup=ReplyKeyboardRemove()
+        "Bye! Let me know when you want to come back to Rhabbitica.",
+        reply_markup=ReplyKeyboardRemove(),
     )
 
     return ConversationHandler.END
 
-def stats(update, context)
-    update.message.reply_text(self.name = user['profile']['name']
-        self.stats = user['stats']
-        self.lvl = self.stats['lvl']
-        self.xp = self.stats['exp']
-        self.gp = self.stats['gp']
-        self.hp = self.stats['hp']
-        self.mp = self.stats['mp']
-        self.xt = self.stats['toNextLevel']
-        self.ht = self.stats['maxHealth']
-        self.mt = self.stats['maxMP']
-        result = api.status()
-        )
 
+# def stats(update, context):
+#     update.message.reply_text(self.name = user['profile']['name']
+#         self.stats = user['stats']
+#         self.lvl = self.stats['lvl']
+#         self.xp = self.stats['exp']
+#         self.gp = self.stats['gp']
+#         self.hp = self.stats['hp']
+#         self.mp = self.stats['mp']
+#         self.xt = self.stats['toNextLevel']
+#         self.ht = self.stats['maxHealth']
+#         self.mt = self.stats['maxMP']
+#         result = api.status()
+#         )
 
 
 def error(update, context):
