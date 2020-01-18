@@ -55,7 +55,9 @@ def get_tasks(task_type):
 
 
 def create_todo(text):
-    return create_task(text, "todo").json()["success"]
+    resp = create_task(text, "todo").json()
+    print(resp)
+    return resp["success"]
 
 
 def create_daily(text):
@@ -91,4 +93,4 @@ def update_task(task_id, text, notes, priority):
         _url("/tasks/" + task_id),
         headers=_headers,
         data={"text": text, "notes": notes, "priority": priority},
-    )
+    ).json()["success"]

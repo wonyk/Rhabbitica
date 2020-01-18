@@ -1,107 +1,131 @@
+import logging
+
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Updater,
-    InlineQueryHandler,
     CommandHandler,
     MessageHandler,
     Filters,
+    ConversationHandler,
+    PicklePersistence,
 )
-import logging
-import requests
-import re
 import api
 
-uid = None
-tid = None
+_task = ""
+# Enable logging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
+
+TASK_NAME, TASK_CREATE = range(2)
 
 
 def start(update, context):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Hi! please do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
-        + "*Get your token Id* \n\t\tTo find your API Token,\nFor the website: User Icon > Settings > API \n\t\tFor iOS/Android App: Menu > API > API Token (tap on it to copy it to your clipboard).\n\n"
-        + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
-        parse_mode="Markdown",
+    reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
+
+    update.message.reply_text(
+        "Hi! My name is Professor Bot. I will hold a conversation with you. "
+        "Send /cancel to stop talking to me.\n\n"
+        "Are you a boy or a girl?",
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
-
-def user_id(update, context):
-    uid = update.effective_message.text.split()[1]
-    if len(uid) != 0:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="User Id set: " + uid
-        )
-        api.set_id(uid, tid)
-    else:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="User Id Not set"
-        )
+    return TASK_NAME
 
 
-def token_id(update, context):
-    tid = update.effective_message.text.split()[1]
-    if len(tid) != 0:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Token Id set: " + tid
-        )
-        api.set_id(uid, tid)
-    else:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Token Id Not set"
-        )
+def title(update, context):
+    user = update.message.from_user
+    logger.info("Task to create for %s: %s", user.first_name, update.message.text)
+    context.user_data["task"] = update.message.text
+    update.message.reply_text(
+        "Tell me what you want to name your {}".format(context.user_data["task"])
+    )
+
+    return TASK_CREATE
 
 
 def create_tasks(update, context):
-    task_type = update.effective_message.text.split()[1]
-    text = " ".join([str(elem) for elem in update.effective_message.text.split()[2:]])
-    resp = api.create_task(text, task_type)
-
-    if resp.status_code != 201:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Cannot create task: {} {}".format(resp.status_code, resp.json()),
-        )
-
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Created task. ID: {}".format(resp.json()),
+    user = update.message.from_user
+    logger.info(
+        "Name of task to create for %s: %s", user.first_name, update.message.text
     )
+    task = context.user_data["task"]
+    title = update.message.text
+    result = False
+    if task == "todo":
+        logger.info("called")
+        result = api.create_todo(title)
+    elif task == "habit":
+        result = api.create_habit(title)
+    elif task == "daily":
+        result = api.create_daily(title)
+    elif task == "reward":
+        result = api.create_reward(title)
 
-
-def get_tasks(update, context):
-    resp = api.get_tasks("todos")
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Task: {} {}".format(resp.status_code, resp.json()),
-    )
-
-
-def command_handle(update, context):
-    create = "#create"
-    get = "#get"
-    if create in update.message.text:
-        create_tasks(update, context)
-    elif get in update.message.text:
-        get_tasks(update, context)
+    if result:
+        update.message.reply_text("I have helped you created {}".format(title))
     else:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="I don't understand that command"
-        )
+        update.message.reply_text("error creating {}".format(title))
+
+    return ConversationHandler.END
+
+
+def cancel(update, context):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text(
+        "Bye! I hope we can talk again some day.", reply_markup=ReplyKeyboardRemove()
+    )
+
+    return ConversationHandler.END
+
+
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def main():
-    print(api.get_todo())
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    pp = PicklePersistence(filename="bot")
     updater = Updater(
-        token="845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True
+        "845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc",
+        persistence=pp,
+        use_context=True,
     )
+
+    # Get the dispatcher to register handlers
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("userid", user_id))
-    dp.add_handler(CommandHandler("tokenid", token_id))
 
-    handler = MessageHandler(Filters.text, command_handle)
-    dp.add_handler(handler)
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("start", start)],
+        states={
+            TASK_NAME: [
+                MessageHandler(Filters.regex("^(habit|todo|reward|daily)$"), title)
+            ],
+            TASK_CREATE: [MessageHandler(Filters.text, create_tasks)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)],
+        persistent=True,
+        name="task_creator",
+    )
 
+    dp.add_handler(conv_handler)
+
+    # log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
     updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
 
