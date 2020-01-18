@@ -68,7 +68,7 @@ def create_tasks(update, context):
 
 
 def get_tasks(update, context):
-    resp = api.get_tasks()
+    resp = api.get_tasks("todos")
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Task: {} {}".format(resp.status_code, resp.json()),
@@ -89,6 +89,7 @@ def command_handle(update, context):
 
 
 def main():
+    print(api.get_todo())
     updater = Updater(
         token="845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True
     )
