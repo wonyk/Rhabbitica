@@ -30,7 +30,7 @@ def user_id(update, context):
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="User Id set: " + uid
         )
-        # api.set_id(uid, tid)
+        api.set_id(uid, tid)
     else:
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="User Id Not set"
@@ -43,7 +43,7 @@ def token_id(update, context):
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="Token Id set: " + tid
         )
-        # api.set_id(uid, tid)
+        api.set_id(uid, tid)
     else:
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="Token Id Not set"
@@ -53,12 +53,18 @@ def token_id(update, context):
 def create_tasks(update, context):
     task_type = update.effective_message.text.split()[1]
     text = " ".join([str(elem) for elem in update.effective_message.text.split()[2:]])
-    print(task_type, text)
     resp = api.create_task(text, task_type)
+
     if resp.status_code != 201:
-        print("Cannot create task: {} {}".format(resp.status_code, resp.json()))
-    print("Created task. ID: {}".format(resp.json()))
-    context.bot.send_message(chat_id=update.effective_chat.id, text="creating nothing")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Cannot create task: {} {}".format(resp.status_code, resp.json()),
+        )
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Created task. ID: {}".format(resp.json()),
+    )
 
 
 def command_handle(update, context):
