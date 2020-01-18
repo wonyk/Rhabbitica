@@ -2,6 +2,13 @@ import logging
 import json
 
 from habitipy import Habitipy
+conf = {
+    'url': 'https://habitica.com',
+    'login': '43a51e03-bf00-4832-a47e-411ec309466f',
+    'password': 'ff4bc2bc-a9d8-4e87-831e-e6b886466bec'
+api = Habitipy(conf)
+print(api.user.get())
+
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 from telegram.ext import (
     Updater,
@@ -227,7 +234,7 @@ def cancel(update, context):
     return ConversationHandler.END
 
 def stats(update, context)
-    self.name = user['profile']['name']
+    update.message.reply_text(self.name = user['profile']['name']
         self.stats = user['stats']
         self.lvl = self.stats['lvl']
         self.xp = self.stats['exp']
@@ -237,6 +244,8 @@ def stats(update, context)
         self.xt = self.stats['toNextLevel']
         self.ht = self.stats['maxHealth']
         self.mt = self.stats['maxMP']
+        result = api.status()
+        )
 
 
 
