@@ -1,6 +1,6 @@
 import logging
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 from telegram.ext import (
     Updater,
     CommandHandler,
@@ -18,6 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 TASK_NAME, TASK_CREATE = range(2)
+VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
 
 def create(update, context):
@@ -69,6 +70,106 @@ def create_tasks(update, context):
     return ConversationHandler.END
 
 
+def view(update, context):
+    reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
+
+    update.message.reply_text(
+        "What task would you like to view?\n" "Send /cancel to stop talking to me.\n\n",
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+    )
+
+    return TASK_NAME
+
+
+def _create_keyboard(result):
+    output = []
+    for i in result:
+        temp = [i[0]]
+        output.append(temp)
+    return output
+
+
+def _get_task(title):
+    result = []
+    if title == "todo":
+        result = api.get_todo()
+        logging.info(result)
+    elif title == "habit":
+        result = api.get_habits()
+    elif title == "daily":
+        result = api.get_dailys()
+    elif title == "reward":
+        result = api.get_rewards()
+    return result
+
+
+def view_list(update, context):
+    user = update.message.from_user
+    logger.info(
+        "Name of task to create for %s: %s", user.first_name, update.message.text
+    )
+    context.user_data["title"] = update.message.text
+    title = update.message.text
+    logging.info(title)
+    result = _get_task(title)
+
+    if result:
+        reply_keyboard = _create_keyboard(result)
+        logging.info(reply_keyboard)
+        update.message.reply_text(
+            "here is your list of task in {}: \nYou can send the name of the actual task here \n".format(
+                title
+            ),
+            reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+        )
+    else:
+        update.message.reply_text("There is nothing in {}".format(title))
+
+    return TASK_OPTIONS
+
+
+def _get_id(tasks, item):
+    for i in tasks:
+        if item == i[0]:
+            return i[1]
+    return None
+
+
+def task_options(update, context):
+    context.user_data["task"] = update.message.text
+    task_list = _get_task(context.user_data["title"])
+    logging.info(task_list, context.user_data["task"])
+    context.user_data["task_id"] = _get_id(task_list, context.user_data["task"])
+    reply_keyboard = [["Completed"], ["Delete"]]
+
+    update.message.reply_text(
+        "What do you want to do with {}? \n".format(context.user_data["task"]),
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+    )
+    return HANDLE_OPTIONS
+
+
+def handle_options(update, context):
+    option = update.message.text
+    result = False
+    if option == "Completed":
+        logging.info("task id :" + context.user_data["task_id"])
+        result = api.mark_task_done(context.user_data["task_id"], "up")
+    elif option == "Delete":
+        result = api.mark_task_done(context.user_data["task_id"], "down")
+
+    if result:
+        update.message.reply_text(
+            "{} successfully {}".format(context.user_data["task"], option)
+        )
+    else:
+        update.message.reply_text(
+            "{} Unsuccessfully {}".format(context.user_data["task"], option)
+        )
+
+    return ConversationHandler.END
+
+
 def cancel(update, context):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
@@ -94,7 +195,7 @@ def main():
     dp = updater.dispatcher
 
     # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
-    conv_handler = ConversationHandler(
+    create_handler = ConversationHandler(
         entry_points=[CommandHandler("create", create)],
         states={
             TASK_NAME: [
@@ -105,8 +206,20 @@ def main():
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
-    dp.add_handler(conv_handler)
+    view_handler = ConversationHandler(
+        entry_points=[CommandHandler("view", view)],
+        states={
+            VIEW_LIST: [
+                MessageHandler(Filters.regex("^(habit|todo|reward|daily)$"), view_list)
+            ],
+            TASK_OPTIONS: [MessageHandler(Filters.text, task_options)],
+            HANDLE_OPTIONS: [MessageHandler(Filters.text, handle_options)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)],
+    )
 
+    dp.add_handler(create_handler)
+    dp.add_handler(view_handler)
     # log all errors
     dp.add_error_handler(error)
 

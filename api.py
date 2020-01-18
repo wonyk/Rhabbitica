@@ -81,7 +81,7 @@ def create_task(text, task_type):
 def mark_task_done(task_id, direction):
     return requests.post(
         _url("/tasks/" + task_id + "/score/" + direction), headers=_headers,
-    )
+    ).json()["success"]
 
 
 def mark_checklist(task_id, task_type):
