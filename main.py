@@ -1,14 +1,35 @@
 import logging
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
+from telegram import (
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    ParseMode,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+)
 from telegram.ext import (
     Updater,
     CommandHandler,
     MessageHandler,
     Filters,
     ConversationHandler,
+    CallbackQueryHandler,
 )
 import api
+import schedule
+import time
+import threading
+
+
+class ScheduleThread(threading.Thread):
+    def __init__(self, *pargs, **kwargs):
+        super().__init__(*pargs, daemon=True, name="scheduler", **kwargs)
+
+    def run(self):
+        while True:
+            schedule.run_pending()
+            time.sleep(schedule.idle_seconds())
+
 
 # Enable logging
 logging.basicConfig(
@@ -20,8 +41,11 @@ logger = logging.getLogger(__name__)
 TASK_NAME, TASK_CREATE, TASK_CREATE_HABIT = range(3)
 VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
+
 def start(update, context):
-    context.bot.send_sticker(chat_id=update.effective_chat.id, sticker='CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
+    context.bot.send_sticker(
+        chat_id=update.effective_chat.id, sticker="CAADBQADLwADbc38AdU1wUDmBM3jFgQ"
+    )
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Hi! please do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
@@ -30,15 +54,16 @@ def start(update, context):
         parse_mode="Markdown",
     )
 
+
 def help(update, context):
     context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="To create: /create\n\nTo view: /view"
+        chat_id=update.effective_chat.id, text="To create: /create\n\nTo view: /view"
     )
+
 
 def create(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
-    update.message.reply_sticker('CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
+    update.message.reply_sticker("CAADBQADLwADbc38AdU1wUDmBM3jFgQ")
     update.message.reply_text(
         "Hi! I am Rhabbitica. I will help you through the creation process. "
         "Send /cancel to stop.\n\n"
@@ -89,11 +114,38 @@ def create_tasks(update, context):
 
     if result:
         update.message.reply_text("I have helped you created {}".format(title))
-        update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
+        update.message.reply_sticker("CAADBQADMAADbc38AexYNt85JrF1FgQ")
     else:
         update.message.reply_text("error creating {}".format(title))
 
     return ConversationHandler.END
+
+
+def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
+    menu = [buttons[i : i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        menu.insert(0, [header_buttons])
+    if footer_buttons:
+        menu.append([footer_buttons])
+    return menu
+
+
+def remind_habits(update, context):
+    task_list = _get_task("habit")
+    for task in task_list:
+        # Show the task with the option to mark the item as done // not done.
+        keyboard = [
+            InlineKeyboardButton("Did it", callback_data="1"),
+            InlineKeyboardButton("Didn't do it", callback_data="2",),
+        ]
+        reply_markup = InlineKeyboardMarkup(build_menu(keyboard, n_cols=1))
+        logging.info("Printing: " + task[0])
+        context.bot.send_message(
+            chat_id=update.message.chat.id,
+            text="Did you {}".format(task[0]),
+            reply_markup=reply_markup,
+        )
+
 
 def create_tasks_habit(update, context):
     user = update.message.from_user
@@ -106,7 +158,9 @@ def create_tasks_habit(update, context):
     result = api.create_habit(_title, mode)
     if result:
         update.message.reply_text("I have helped you created {}".format(_title))
-        update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
+        update.message.reply_sticker("CAADBQADMAADbc38AexYNt85JrF1FgQ")
+        schedule.every(30).seconds.do(remind_habits, update, context)
+        ScheduleThread().start()
     else:
         update.message.reply_text("error creating {}".format(title))
 
@@ -159,7 +213,7 @@ def view_list(update, context):
     if result:
         reply_keyboard = _create_keyboard(result)
         logging.info(reply_keyboard)
-        update.message.reply_sticker('CAADBQADKwADbc38AQcVcPeIfxqcFgQ')
+        update.message.reply_sticker("CAADBQADKwADbc38AQcVcPeIfxqcFgQ")
         update.message.reply_text(
             "here is your list of task in {}: \nYou can send the name of the actual task here \n".format(
                 title
@@ -167,7 +221,7 @@ def view_list(update, context):
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
     else:
-        update.message.reply_sticker('CAADBQADKwADbc38AQcVcPeIfxqcFgQ')
+        update.message.reply_sticker("CAADBQADKwADbc38AQcVcPeIfxqcFgQ")
         update.message.reply_text("There is nothing in {}".format(title))
 
     return TASK_OPTIONS
@@ -205,11 +259,11 @@ def handle_options(update, context):
 
     if result:
         update.message.reply_text(
-            "{} successfully {}".format(context.user_data["task"], option + 'd')
+            "{} successfully {}".format(context.user_data["task"], option + "d")
         )
     else:
         update.message.reply_text(
-            "{} Unsuccessfully {}".format(context.user_data["task"], option + 'd')
+            "{} Unsuccessfully {}".format(context.user_data["task"], option + "d")
         )
 
     return ConversationHandler.END
@@ -228,6 +282,14 @@ def cancel(update, context):
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
+
+
+def _didit(update, context):
+    logging.info("Did pressed")
+
+
+def _didnot(update, context):
+    logging.info("Didn't do it")
 
 
 def main():
@@ -270,6 +332,8 @@ def main():
 
     dp.add_handler(create_handler)
     dp.add_handler(view_handler)
+    dp.add_handler(CallbackQueryHandler(_didit, pattern="1"))
+    dp.add_handler(CallbackQueryHandler(_didnot, pattern="2"))
     # log all errors
     dp.add_error_handler(error)
 
