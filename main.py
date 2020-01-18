@@ -20,14 +20,34 @@ logger = logging.getLogger(__name__)
 TASK_NAME, TASK_CREATE = range(2)
 VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
+def start(update, context):
+    context.bot.send_sticker(chat_id=update.effective_chat.id, sticker='CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Hi! please do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
+        + "*Get your token Id* \n\t\tTo find your API Token,\nFor the website: User Icon > Settings > API \n\t\tFor iOS/Android App: Menu > API > API Token (tap on it to copy it to your clipboard).\n\n"
+        + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
+        parse_mode="Markdown",
+    )
+
+def help(update, context):
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="To create: /create\n\nTo view: /view"
+    )
 
 def create(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
-
+    update.message.reply_sticker('CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
     update.message.reply_text(
-        "Hi! My name is Professor Bot. I will hold a conversation with you. "
-        "Send /cancel to stop talking to me.\n\n"
-        "Are you a boy or a girl?",
+        "Hi! I am Rhabbitica. I will help you through the creation process. "
+        "Send /cancel to stop.\n\n"
+        "What kind of tasks do you want to create?\n"
+        "*Habits* don't have a rigid schedule. You can check them off multiple times per day.\n"
+        "Dailies repeat on a regular basis. Choose the schedule that works best for you!\n"
+        "Todos keep yourself on check!\n"
+        "Customise your rewards, it's up to you!",
+        parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
@@ -64,6 +84,7 @@ def create_tasks(update, context):
 
     if result:
         update.message.reply_text("I have helped you created {}".format(title))
+        update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
     else:
         update.message.reply_text("error creating {}".format(title))
 
@@ -189,7 +210,8 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
+    # updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
+    updater = Updater("916014708:AAGdXdRaG-tlpzpiCH05KVk0oO26T6fGVNc", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -217,6 +239,9 @@ def main():
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
+
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
 
     dp.add_handler(create_handler)
     dp.add_handler(view_handler)
