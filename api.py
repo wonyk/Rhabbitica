@@ -84,6 +84,11 @@ def mark_task_done(task_id, direction):
     ).json()["success"]
 
 
+def delete_task(task_id):
+    resp = requests.delete(_url("/tasks/" + task_id), headers=_headers)
+    return resp.status_code == 200
+
+
 def mark_checklist(task_id, task_type):
     pass
 

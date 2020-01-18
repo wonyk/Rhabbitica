@@ -156,7 +156,7 @@ def handle_options(update, context):
         logging.info("task id :" + context.user_data["task_id"])
         result = api.mark_task_done(context.user_data["task_id"], "up")
     elif option == "Delete":
-        result = api.mark_task_done(context.user_data["task_id"], "down")
+        result = api.delete_task(context.user_data["task_id"])
 
     if result:
         update.message.reply_text(
