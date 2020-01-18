@@ -20,25 +20,25 @@ def set_id(uid, tid):
 
 def get_todo():
     resp = get_tasks("todos").json()
-    todos = [(i["text"], i["_id"]) for i in resp["data"]]
+    todos = [(i["text"], i["_id"], i["notes"]) for i in resp["data"]]
     return todos
 
 
 def get_dailys():
     resp = get_tasks("dailys").json()
-    dailys = [(i["text"], i["_id"]) for i in resp["data"]]
+    dailys = [(i["text"], i["_id"], i["notes"]) for i in resp["data"]]
     return dailys
 
 
 def get_habits():
     resp = get_tasks("habits").json()
-    habits = [(i["text"], i["_id"]) for i in resp["data"]]
+    habits = [(i["text"], i["_id"], i["notes"], i["up"], i["down"], i["counterUp"], i["counterDown"]) for i in resp["data"]]
     return habits
 
 
 def get_rewards():
     resp = get_tasks("rewards").json()
-    rewards = [(i["text"], i["_id"]) for i in resp["data"]]
+    rewards = [(i["text"], i["_id"], i["notes"]) for i in resp["data"]]
     return rewards
 
 
