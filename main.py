@@ -7,11 +7,9 @@ from telegram.ext import (
     MessageHandler,
     Filters,
     ConversationHandler,
-    PicklePersistence,
 )
 import api
 
-_task = ""
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -22,7 +20,7 @@ logger = logging.getLogger(__name__)
 TASK_NAME, TASK_CREATE = range(2)
 
 
-def start(update, context):
+def create(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
 
     update.message.reply_text(
@@ -51,17 +49,16 @@ def create_tasks(update, context):
     logger.info(
         "Name of task to create for %s: %s", user.first_name, update.message.text
     )
-    task = context.user_data["task"]
+    _task = context.user_data["task"]
     title = update.message.text
     result = False
-    if task == "todo":
-        logger.info("called")
+    if _task == "todo":
         result = api.create_todo(title)
-    elif task == "habit":
+    elif _task == "habit":
         result = api.create_habit(title)
-    elif task == "daily":
+    elif _task == "daily":
         result = api.create_daily(title)
-    elif task == "reward":
+    elif _task == "reward":
         result = api.create_reward(title)
 
     if result:
@@ -91,19 +88,14 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    pp = PicklePersistence(filename="bot")
-    updater = Updater(
-        "845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc",
-        persistence=pp,
-        use_context=True,
-    )
+    updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
+        entry_points=[CommandHandler("create", create)],
         states={
             TASK_NAME: [
                 MessageHandler(Filters.regex("^(habit|todo|reward|daily)$"), title)
@@ -111,8 +103,6 @@ def main():
             TASK_CREATE: [MessageHandler(Filters.text, create_tasks)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
-        persistent=True,
-        name="task_creator",
     )
 
     dp.add_handler(conv_handler)
