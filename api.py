@@ -1,8 +1,8 @@
 import requests
 
 
-_uid = None
-_tid = None
+_uid = "43a51e03-bf00-4832-a47e-411ec309466f"
+_tid = "ff4bc2bc-a9d8-4e87-831e-e6b886466bec"
 _headers = {
     "x-api-user": _uid,
     "x-api-key": _tid,
@@ -28,7 +28,7 @@ def describe_task(task_id):
 
 def create_task(text, task_type):
     return requests.post(
-        _url("/tasks/user"), headers=_headers, data={"text": text, "task_type": type,},
+        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type,},
     )
 
 
