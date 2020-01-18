@@ -1,17 +1,29 @@
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Updater,
     InlineQueryHandler,
     CommandHandler,
     MessageHandler,
     Filters,
+    CallbackQueryHandler,
+    ConversationHandler
 )
 import logging
 import requests
 import re
 import api
+import env
 
 uid = None
 tid = None
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+
+TYPE, TITLE = range(2)
 
 
 def start(update, context):
@@ -51,20 +63,36 @@ def token_id(update, context):
 
 
 def create_tasks(update, context):
-    task_type = update.effective_message.text.split()[1]
-    text = " ".join([str(elem) for elem in update.effective_message.text.split()[2:]])
-    resp = api.create_task(text, task_type)
+    reply_keyboard = [[InlineKeyboardButton("Habit", callback_data='habit'),
+                 InlineKeyboardButton("Daily", callback_data='daily')],
+                [InlineKeyboardButton("Todo", callback_data='todo'),
+                InlineKeyboardButton("Reward", callback_data='reward')]]
 
-    if resp.status_code != 201:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Cannot create task: {} {}".format(resp.status_code, resp.json()),
-        )
+    # reply_markup = InlineKeyboardMarkup(keyboard)
 
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Created task. ID: {}".format(resp.json()),
-    )
+    update.message.reply_text('Please choose:', ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+    return TYPE
+
+def create_title(update, context):
+    user = update.message.from_user
+    logger.info("Type of %s:%s", user, update.message.text)
+    update.message.reply_text('I see! Please send me a photo of yourself, '
+        'so I know what you look like, or send /skip if you don\'t want to.')
+
+    # task_type = update.effective_message.text.split()[1]
+    # text = " ".join([str(elem) for elem in update.effective_message.text.split()[2:]])
+    # resp = api.create_task(text, task_type)
+
+    # if resp.status_code != 201:
+    #     context.bot.send_message(
+    #         chat_id=update.effective_chat.id,
+    #         text="Cannot create task: {} {}".format(resp.status_code, resp.json()),
+    #     )
+
+    # context.bot.send_message(
+    #     chat_id=update.effective_chat.id,
+    #     text="Created task. ID: {}".format(resp.json()),
+    # )
 
 
 def get_tasks(update, context):
@@ -87,18 +115,39 @@ def command_handle(update, context):
             chat_id=update.effective_chat.id, text="I don't understand that command"
         )
 
+def cancel(update, context):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text('Bye! I hope we can talk again some day.',
+                              reply_markup=ReplyKeyboardRemove())
+
+    return ConversationHandler.END
+
 
 def main():
     updater = Updater(
-        token="845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True
+        token=env.api_key, use_context=True
     )
     dp = updater.dispatcher
+
+    createConvo = ConversationHandler(
+        entry_points=[MessageHandler(Filters.text, command_handle)],
+
+        states={
+            TYPE: [MessageHandler(Filters.regex('^(habit|daily|todo|reward)$'), create_tasks)],
+            TITLE: [MessageHandler(Filters.text, create_title)]
+        },
+         fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("userid", user_id))
     dp.add_handler(CommandHandler("tokenid", token_id))
-
-    handler = MessageHandler(Filters.text, command_handle)
-    dp.add_handler(handler)
+    # dp.add_handler(CallbackQueryHandler(button))
+    dp.add_handler(createConvo)
+    # handler = MessageHandler(Filters.text, command_handle)
+    # dp.add_handler(handler)
 
     updater.start_polling()
     updater.idle()
