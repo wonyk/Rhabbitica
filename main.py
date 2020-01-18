@@ -1,10 +1,6 @@
 import logging
 import json
 
-<<<<<<< HEAD
-=======
-# from habitipy import Habitipy
->>>>>>> 8bfcc680b247c88b7b5e78823c2ebe9a1c14bf3e
 
 conf = {
     "url": "https://habitica.com",
@@ -105,8 +101,8 @@ def start(update, context):
     context.bot.send_sticker(chat_id=update.effective_chat.id, sticker=_start_sticker)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="Hello! My name is *Rhabbit*. Welcome to Rhabbitica, an alternate universe of the *Habitica* world! Before we get started, could I trouble you to do a few things first?\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
-        + "*Get your token Id* \n\t\tTo find your API Token,\nFor the website: User Icon > Settings > API \n\t\tFor iOS/Android App: Menu > API > API Token (tap on it to copy it to your clipboard).\n\n"
+        text="Hello! My name is *Rhabbit*. Welcome to Rhabbitica, an alternate universe of the *Habitica* world! Before we get started, could I trouble you to identify yourself?\n\n*Get your userID.*\nTo find your User ID:\n\t\tFrom the website: User Icon > Settings > API.\n\t\tFrom iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
+        + "*Get your token Id* \n\t\tTo find your API Token,\nFrom the website: User Icon > Settings > API \n\t\tFrom iOS/Android App: Menu > API > API Token (tap on it to copy it to your clipboard).\n\n"
         + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
         parse_mode="Markdown",
     )
@@ -173,7 +169,7 @@ def create_tasks(update, context):
         result = api.create_reward(title)
 
     if result:
-        update.message.reply_text("I have helped you created {}".format(title))
+        update.message.reply_text("I have helped you create {}".format(title))
         update.message.reply_sticker(_completed_sticker)
         others = _create_keyboard(_get_task(_task))
         update.message.reply_text(
@@ -289,7 +285,7 @@ def view_list(update, context):
         else:
             update.message.reply_sticker(_completed_sticker)
         update.message.reply_text(
-            "here is your list of task in {}: \nYou can send the name of the actual task here \n".format(
+            "Here is your list of tasks in {}: \nYou can send the name of the actual task here \n".format(
                 title
             ),
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
