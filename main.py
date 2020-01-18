@@ -166,15 +166,10 @@ def create_tasks_habit(update, context):
     result = False
     result = api.create_habit(_title, mode)
     if result:
-<<<<<<< HEAD
-        update.message.reply_text("I have helped you created {}".format(_title))
+        update.message.reply_text("I have helped you create {}".format(_title))
         update.message.reply_sticker("CAADBQADMAADbc38AexYNt85JrF1FgQ")
         schedule.every(30).seconds.do(remind_habits, update, context)
         ScheduleThread().start()
-=======
-        update.message.reply_text("I have helped you create {}".format(_title))
-        update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
->>>>>>> 727ec1c3dace6356aa5b7fe38222adf4531d63de
     else:
         update.message.reply_text("error creating {}".format(title))
 
