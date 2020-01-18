@@ -24,7 +24,7 @@ def start(update, context):
     context.bot.send_sticker(chat_id=update.effective_chat.id, sticker='CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="Hi! please do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
+        text="Hello! My name is *Rhabbit*. Welcome to Rhabbitica, an alternate universe of the *Habitica* world! Before we get started, could I trouble you to do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
         + "*Get your token Id* \n\t\tTo find your API Token,\nFor the website: User Icon > Settings > API \n\t\tFor iOS/Android App: Menu > API > API Token (tap on it to copy it to your clipboard).\n\n"
         + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
         parse_mode="Markdown",
@@ -40,13 +40,13 @@ def create(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
     update.message.reply_sticker('CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
     update.message.reply_text(
-        "Hi! I am Rhabbitica. I will help you through the creation process. "
+        "Hi! I am Rhabbit. As your personal assistant, let me help you create a task. "
         "Send /cancel to stop.\n\n"
         "What kind of tasks do you want to create?\n"
         "*Habits* don't have a rigid schedule. You can check them off multiple times per day.\n"
-        "Dailies repeat on a regular basis. Choose the schedule that works best for you!\n"
-        "Todos keep yourself on check!\n"
-        "Customise your rewards, it's up to you!",
+        "*Dailies* repeat on a regular basis. Choose the schedule that works best for you!\n"
+        "*To-dos* keep yourself on check!\n"
+        "Customise your *rewards*, it's up to you!",
         parse_mode="Markdown",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
@@ -59,7 +59,7 @@ def title(update, context):
     logger.info("Task to create for %s: %s", user.first_name, update.message.text)
     context.user_data["task"] = update.message.text
     update.message.reply_text(
-        "Tell me what you want to name your {}".format(context.user_data["task"])
+        "What would you like to name your {}".format(context.user_data["task"])
     )
     return TASK_CREATE
 
@@ -88,7 +88,7 @@ def create_tasks(update, context):
         result = api.create_reward(title)
 
     if result:
-        update.message.reply_text("I have helped you created {}".format(title))
+        update.message.reply_text("I've helped you create {}".format(title))
         update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -117,7 +117,7 @@ def view(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
 
     update.message.reply_text(
-        "What task would you like to view?\n" "Send /cancel to stop talking to me.\n\n",
+        "What task would you like to view?\n" "Send /cancel to return to the real world.\n\n",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
@@ -219,7 +219,7 @@ def cancel(update, context):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        "Bye! I hope we can talk again some day.", reply_markup=ReplyKeyboardRemove()
+        "Bye! Let me know when you want to come back to Rhabbitica.", reply_markup=ReplyKeyboardRemove()
     )
 
     return ConversationHandler.END
