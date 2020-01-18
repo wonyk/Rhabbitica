@@ -24,7 +24,7 @@ def start(update, context):
     context.bot.send_sticker(chat_id=update.effective_chat.id, sticker='CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="Hello! My name is *Rhabbit*. Welcome to Rhabbitica, an alternate universe of the *Habitica* world! Before we get started, could I trouble you to do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
+        text="Hello! My name is *Rhabbit*. Welcome to Rhabbitica, an alternate universe of the *Habitica* world! Before we get started, could I trouble you to do a few things first?\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
         + "*Get your token Id* \n\t\tTo find your API Token,\nFor the website: User Icon > Settings > API \n\t\tFor iOS/Android App: Menu > API > API Token (tap on it to copy it to your clipboard).\n\n"
         + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
         parse_mode="Markdown",
@@ -111,20 +111,6 @@ def create_tasks_habit(update, context):
         update.message.reply_text("error creating {}".format(title))
 
     return ConversationHandler.END
-
-def me(update, context):
-    reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
-
-    update.message.reply_text(
-        user.first_name, ", these are your stats!",
-        ),
-    )
-
-    return TASK_NAME
-
-def stats(update, context):
-    update.message.reply_text("These are your stats!")
-    return = api.userdata()
 
 
 def view(update, context):
