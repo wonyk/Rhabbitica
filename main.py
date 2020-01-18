@@ -25,7 +25,7 @@ def start(update, context):
 
 
 def user_id(update, context):
-    uid = update.message.text.split("/userid ", 1)[1]
+    uid = update.effective_message.text.split()[1]
     if len(uid) != 0:
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="User Id set: " + uid
@@ -38,7 +38,7 @@ def user_id(update, context):
 
 
 def token_id(update, context):
-    tid = update.message.text.split("/tokenid ", 1)[1]
+    tid = update.effective_message.text.split()[1]
     if len(tid) != 0:
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="Token Id set: " + tid
@@ -54,6 +54,7 @@ def create_tasks(update, context):
     task_type = update.effective_message.text.split()[1]
     title = update.effective_message.text.split()[2:]
     resp = api.create_task(title, task_type)
+    print(resp.status_code)
     if resp.status_code != 201:
         print("Cannot create task: {}".format(resp.status_code))
     print("Created task. ID: {}".format(resp.json()["id"]))
