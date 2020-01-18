@@ -19,8 +19,11 @@ logger = logging.getLogger(__name__)
 
 TASK_NAME, TASK_CREATE = range(2)
 
+
 def start(update, context):
-    context.bot.send_sticker(chat_id=update.effective_chat.id, sticker='CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
+    context.bot.send_sticker(
+        chat_id=update.effective_chat.id, sticker="CAADBQADLwADbc38AdU1wUDmBM3jFgQ"
+    )
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Hi! please do a few things first.\n\n*Get your userID.*\nTo find your User ID:\n\t\tFor the website: User Icon > Settings > API.\n\t\tFor iOS/Android App: Menu > Settings > API > User ID (tap on it to copy it to your clipboard).\n\n"
@@ -29,15 +32,16 @@ def start(update, context):
         parse_mode="Markdown",
     )
 
+
 def help(update, context):
     context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="To create: /create\n\nTo view: /view"
+        chat_id=update.effective_chat.id, text="To create: /create\n\nTo view: /view"
     )
+
 
 def create(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
-    update.message.reply_sticker('CAADBQADLwADbc38AdU1wUDmBM3jFgQ')
+    update.message.reply_sticker("CAADBQADLwADbc38AdU1wUDmBM3jFgQ")
     update.message.reply_text(
         "Hi! I am Rhabbitica. I will help you through the creation process. "
         "Send /cancel to stop.\n\n"
@@ -83,7 +87,7 @@ def create_tasks(update, context):
 
     if result:
         update.message.reply_text("I have helped you created {}".format(title))
-        update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
+        update.message.reply_sticker("CAADBQADMAADbc38AexYNt85JrF1FgQ")
     else:
         update.message.reply_text("error creating {}".format(title))
 
@@ -109,7 +113,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("916014708:AAGdXdRaG-tlpzpiCH05KVk0oO26T6fGVNc", use_context=True)
+    updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
