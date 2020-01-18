@@ -2,5 +2,5 @@ def main():
     pass
 
 
-if __init__ == "main":
+if __name__ == "main":
     main()
