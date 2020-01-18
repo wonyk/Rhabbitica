@@ -18,8 +18,10 @@ def set_id(uid, tid):
     _tid = tid
 
 
-def get_tasks():
-    return requests.get(_url("/tasks/user"), params={"type": ""}, headers=_headers,)
+def get_tasks(task_type):
+    return requests.get(
+        _url("/tasks/user"), params={"type": task_type}, headers=_headers,
+    )
 
 
 def describe_task(task_id):

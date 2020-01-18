@@ -67,10 +67,21 @@ def create_tasks(update, context):
     )
 
 
+def get_tasks(update, context):
+    resp = api.get_tasks()
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Task: {} {}".format(resp.status_code, resp.json()),
+    )
+
+
 def command_handle(update, context):
     create = "#create"
+    get = "#get"
     if create in update.message.text:
         create_tasks(update, context)
+    elif get in update.message.text:
+        get_tasks(update, context)
     else:
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="I don't understand that command"
