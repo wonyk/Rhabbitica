@@ -17,7 +17,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-TASK_NAME, TASK_CREATE = range(2)
+TASK_NAME, TASK_CREATE, TASK_CREATE_HABIT = range(3)
 VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
 def start(update, context):
@@ -61,7 +61,6 @@ def title(update, context):
     update.message.reply_text(
         "Tell me what you want to name your {}".format(context.user_data["task"])
     )
-
     return TASK_CREATE
 
 
@@ -72,11 +71,17 @@ def create_tasks(update, context):
     )
     _task = context.user_data["task"]
     title = update.message.text
+    context.user_data["title"] = title
     result = False
     if _task == "todo":
         result = api.create_todo(title)
     elif _task == "habit":
-        result = api.create_habit(title)
+        reply_keyboard = [["positive"], ["negative"]]
+        update.message.reply_text(
+            "What kind of habit is it?",
+            reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+        )
+        return TASK_CREATE_HABIT
     elif _task == "daily":
         result = api.create_daily(title)
     elif _task == "reward":
@@ -84,6 +89,23 @@ def create_tasks(update, context):
 
     if result:
         update.message.reply_text("I have helped you created {}".format(title))
+        update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
+    else:
+        update.message.reply_text("error creating {}".format(title))
+
+    return ConversationHandler.END
+
+def create_tasks_habit(update, context):
+    user = update.message.from_user
+    logger.info(
+        "Name of task to create for %s: %s", user.first_name, update.message.text
+    )
+    _title = context.user_data["title"]
+    mode = update.message.text
+    result = False
+    result = api.create_habit(_title, mode)
+    if result:
+        update.message.reply_text("I have helped you created {}".format(_title))
         update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -226,6 +248,7 @@ def main():
                 MessageHandler(Filters.regex("^(habit|todo|reward|daily)$"), title)
             ],
             TASK_CREATE: [MessageHandler(Filters.text, create_tasks)],
+            TASK_CREATE_HABIT: [MessageHandler(Filters.text, create_tasks_habit)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )

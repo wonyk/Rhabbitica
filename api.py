@@ -55,24 +55,32 @@ def get_tasks(task_type):
 
 
 def create_todo(text):
-    resp = create_task(text, "todo").json()
+    resp = create_task(text, "todo", mode='').json()
     print(resp)
     return resp["success"]
 
 
 def create_daily(text):
-    return create_task(text, "daily").json()["success"]
+    return create_task(text, "daily", mode='').json()["success"]
 
 
-def create_habit(text, up_enabled=True, down_enabled=True):
-    return create_task(text, "habit").json()["success"]
+def create_habit(text, mode, up_enabled=True, down_enabled=True):
+    return create_task(text, "habit", mode).json()["success"]
 
 
 def create_reward(text):
-    return create_task(text, "reward").json()["success"]
+    return create_task(text, "reward", mode='').json()["success"]
 
 
-def create_task(text, task_type):
+def create_task(text, task_type, mode):
+    if mode != '' and mode == 'positive':
+        return requests.post(
+        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type, "down": 'false'},
+        )
+    elif (mode != '' and mode == 'negative'):
+        return requests.post(
+        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type, "up": 'false'},
+        )
     return requests.post(
         _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type,},
     )
