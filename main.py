@@ -137,6 +137,7 @@ def view_list(update, context):
     if result:
         reply_keyboard = _create_keyboard(result)
         logging.info(reply_keyboard)
+        update.message.reply_sticker('CAADBQADKwADbc38AQcVcPeIfxqcFgQ')
         update.message.reply_text(
             "here is your list of task in {}: \nYou can send the name of the actual task here \n".format(
                 title
@@ -144,6 +145,7 @@ def view_list(update, context):
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
     else:
+        update.message.reply_sticker('CAADBQADKwADbc38AQcVcPeIfxqcFgQ')
         update.message.reply_text("There is nothing in {}".format(title))
 
     return TASK_OPTIONS
@@ -181,11 +183,11 @@ def handle_options(update, context):
 
     if result:
         update.message.reply_text(
-            "{} successfully {}".format(context.user_data["task"], option)
+            "{} successfully {}".format(context.user_data["task"], option + 'd')
         )
     else:
         update.message.reply_text(
-            "{} Unsuccessfully {}".format(context.user_data["task"], option)
+            "{} Unsuccessfully {}".format(context.user_data["task"], option + 'd')
         )
 
     return ConversationHandler.END
