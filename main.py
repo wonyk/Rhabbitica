@@ -1,6 +1,7 @@
 import logging
 import json
 
+from habitipy import Habitipy
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 from telegram.ext import (
     Updater,
