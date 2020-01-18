@@ -1,4 +1,5 @@
 import logging
+import json
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 from telegram.ext import (
@@ -59,7 +60,7 @@ def title(update, context):
     logger.info("Task to create for %s: %s", user.first_name, update.message.text)
     context.user_data["task"] = update.message.text
     update.message.reply_text(
-        "What would you like to name your {}".format(context.user_data["task"])
+        "What would you like to name your {}?".format(context.user_data["task"])
     )
     return TASK_CREATE
 
@@ -88,7 +89,7 @@ def create_tasks(update, context):
         result = api.create_reward(title)
 
     if result:
-        update.message.reply_text("I've helped you create {}".format(title))
+        update.message.reply_text("I have helped you create {}".format(title))
         update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -105,7 +106,7 @@ def create_tasks_habit(update, context):
     result = False
     result = api.create_habit(_title, mode)
     if result:
-        update.message.reply_text("I have helped you created {}".format(_title))
+        update.message.reply_text("I have helped you create {}".format(_title))
         update.message.reply_sticker('CAADBQADMAADbc38AexYNt85JrF1FgQ')
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -117,7 +118,7 @@ def view(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
 
     update.message.reply_text(
-        "What task would you like to view?\n" "Send /cancel to return to the real world.\n\n",
+        "What task would you like me to check on?\n" "Send /cancel to do something else.\n\n",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
@@ -223,6 +224,19 @@ def cancel(update, context):
     )
 
     return ConversationHandler.END
+
+def stats(update, context)
+    self.name = user['profile']['name']
+        self.stats = user['stats']
+        self.lvl = self.stats['lvl']
+        self.xp = self.stats['exp']
+        self.gp = self.stats['gp']
+        self.hp = self.stats['hp']
+        self.mp = self.stats['mp']
+        self.xt = self.stats['toNextLevel']
+        self.ht = self.stats['maxHealth']
+        self.mt = self.stats['maxMP']
+
 
 
 def error(update, context):
