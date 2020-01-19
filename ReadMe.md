@@ -1,4 +1,5 @@
 ![Icon of Rhbbitica bot]("icon(1).jpg")
+
 I am Rhabbit, your loyal assistant who will be joining you on your journey of self improvement.
 
 Together, we will explore the world of Rhabbitica and quest for the ancient scrolls of Habitica and Telegram.
