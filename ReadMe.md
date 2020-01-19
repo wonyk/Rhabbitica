@@ -1,4 +1,4 @@
-![Icon of Rhbbitica bot]("icon(1).jpg")
+![Icon of Rhbbitica bot](/icon (1).jpg)
 
 I am Rhabbit, your loyal assistant who will be joining you on your journey of self improvement.
 
@@ -13,4 +13,4 @@ And remember to get decked out!
 Remember to bring your friends along too!
 
 Screenshot:
-![Screenshot of Rhbbitica bot]("Screenshot_20200119-113141_Telegram X.jpg")
+![Screenshot of Rhbbitica bot](/Screenshot_20200119-113141_Telegram X.jpg)
