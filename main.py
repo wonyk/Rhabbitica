@@ -49,6 +49,8 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+uid = None
+tid = None
 
 # constants
 _start_sticker = "CAADBQADLwADbc38AdU1wUDmBM3jFgQ"
@@ -90,9 +92,34 @@ _quotes = [
 TASK_NAME, TASK_MESSAGE, TASK_CREATE, TASK_CREATE_HABIT = range(4)
 VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
-_quote_time = 15
-_quote_pic_time = 50
+_quote_time = 100
+_quote_pic_time = 150
 
+
+def user_id(update, context):
+    uid = update.effective_message.text.split()[1]
+    if len(uid) != 0:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="User Id set: " + uid
+        )
+        api.set_id(uid, tid)
+    else:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="User Id Not set"
+        )
+
+
+def token_id(update, context):
+    tid = update.effective_message.text.split()[1]
+    if len(tid) != 0:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Token Id set: " + tid
+        )
+        api.set_id(uid, tid)
+    else:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Token Id Not set"
+        )
 
 def quote_gen(update, context):
     quote = random.choice(_quotes)
@@ -116,6 +143,9 @@ def start(update, context):
         + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
         parse_mode="Markdown",
     )
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text = "To get started: /help")
     schedule.every(_quote_time).seconds.do(quote_gen, update, context)
     schedule.every(_quote_pic_time).seconds.do(quote_pic_gen, update, context)
     ScheduleThread().start()
@@ -260,7 +290,7 @@ def create_tasks_habit(update, context):
                 "\n - ".join([str(i[0]) for i in others])
             )
         )
-        schedule.every(5).seconds.do(remind_habits, update, context)
+        schedule.every(120).seconds.do(remind_habits, update, context)
         ScheduleThread().start()
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -536,6 +566,8 @@ def main():
     )
 
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("tokenid", token_id))
+    dp.add_handler(CommandHandler("userid", user_id))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("stats", stats))
 
