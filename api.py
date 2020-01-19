@@ -32,7 +32,18 @@ def get_dailys():
 
 def get_habits():
     resp = get_tasks("habits").json()
-    habits = [(i["text"], i["_id"], i["notes"], i["up"], i["down"], i["counterUp"], i["counterDown"]) for i in resp["data"]]
+    habits = [
+        (
+            i["text"],
+            i["_id"],
+            i["notes"],
+            i["up"],
+            i["down"],
+            i["counterUp"],
+            i["counterDown"],
+        )
+        for i in resp["data"]
+    ]
     return habits
 
 
@@ -48,6 +59,12 @@ def get_tasks(task_type):
     )
 
 
+def get_status():
+    return requests.get(
+        "https://habitica.com/export/userdata.json", headers=_headers,
+    ).json()['stats']
+
+
 # def get_task_id(task_name, task_type):
 #     resp = get_tasks(task_type).json()
 #     task_id = [i["_id"] for i in resp["data"] if i["text"] == task_name]
@@ -55,13 +72,13 @@ def get_tasks(task_type):
 
 
 def create_todo(text):
-    resp = create_task(text, "todo", mode='').json()
+    resp = create_task(text, "todo", mode="").json()
     print(resp)
     return resp["success"]
 
 
 def create_daily(text):
-    return create_task(text, "daily", mode='').json()["success"]
+    return create_task(text, "daily", mode="").json()["success"]
 
 
 def create_habit(text, mode, up_enabled=True, down_enabled=True):
@@ -69,17 +86,21 @@ def create_habit(text, mode, up_enabled=True, down_enabled=True):
 
 
 def create_reward(text):
-    return create_task(text, "reward", mode='').json()["success"]
+    return create_task(text, "reward", mode="").json()["success"]
 
 
 def create_task(text, task_type, mode):
-    if mode != '' and mode == 'positive':
+    if mode != "" and mode == "positive":
         return requests.post(
-        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type, "down": 'false'},
+            _url("/tasks/user"),
+            headers=_headers,
+            data={"text": text, "type": task_type, "down": "false"},
         )
-    elif (mode != '' and mode == 'negative'):
+    elif mode != "" and mode == "negative":
         return requests.post(
-        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type, "up": 'false'},
+            _url("/tasks/user"),
+            headers=_headers,
+            data={"text": text, "type": task_type, "up": "false"},
         )
     return requests.post(
         _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type,},

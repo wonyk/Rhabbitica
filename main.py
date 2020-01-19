@@ -385,19 +385,17 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
-# def stats(update, context):
-#     update.message.reply_text(self.name = user['profile']['name']
-#         self.stats = user['stats']
-#         self.lvl = self.stats['lvl']
-#         self.xp = self.stats['exp']
-#         self.gp = self.stats['gp']
-#         self.hp = self.stats['hp']
-#         self.mp = self.stats['mp']
-#         self.xt = self.stats['toNextLevel']
-#         self.ht = self.stats['maxHealth']
-#         self.mt = self.stats['maxMP']
-#         result = api.status()
-#         )
+def stats(update, context):
+    status = api.get_status()
+    logging.info(status)
+    update.message.reply_markdown(
+        "Here are your stats: \n"
+        + "- HP: {} \n".format(status["hp"])
+        + "- Mana Points: {} \n".format(round(status["mp"], 1))
+        + "- Exp: {}\n".format(status["exp"])
+        + "- Gold: {}\n".format(round(status["gp"], 1))
+        + "- level: {}\n".format(status["lvl"]),
+    )
 
 
 def error(update, context):
@@ -450,6 +448,7 @@ def main():
 
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("stats", stats))
 
     dp.add_handler(create_handler)
     dp.add_handler(view_handler)
