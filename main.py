@@ -31,6 +31,7 @@ import time
 import threading
 import re
 import random
+import key
 
 
 class ScheduleThread(threading.Thread):
@@ -153,7 +154,7 @@ def start(update, context):
 
 def help(update, context):
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="To create: /create\n\nTo view: /view"
+        chat_id=update.effective_chat.id, text="To create a task: /create\n\nTo view your tasks: /view"
     )
 
 
@@ -533,8 +534,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
-    # updater = Updater("916014708:AAGdXdRaG-tlpzpiCH05KVk0oO26T6fGVNc", use_context=True)
+    updater = Updater(key.get_api_key(), use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

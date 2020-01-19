@@ -62,7 +62,7 @@ def get_tasks(task_type):
 def get_status():
     return requests.get(
         "https://habitica.com/export/userdata.json", headers=_headers,
-    ).json()['stats']
+    ).json()["stats"]
 
 
 # def get_task_id(task_name, task_type):
@@ -103,7 +103,9 @@ def create_task(text, message, task_type, mode):
             data={"text": text, "type": task_type, "up": "false", "notes": message},
         )
     return requests.post(
-        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type, "notes": message},
+        _url("/tasks/user"),
+        headers=_headers,
+        data={"text": text, "type": task_type, "notes": message, "value": 10},
     )
 
 
