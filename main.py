@@ -87,7 +87,7 @@ _quotes = [
     "No one can make you feel inferior without your consent. --Eleanor Roosevelt",
 ]
 
-TASK_NAME, TASK_CREATE, TASK_CREATE_HABIT = range(3)
+TASK_NAME, TASK_MESSAGE, TASK_CREATE, TASK_CREATE_HABIT = range(4)
 VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
 
@@ -153,32 +153,45 @@ def title(update, context):
     update.message.reply_text(
         "What would you like to name your {}?".format(context.user_data["task"])
     )
-    return TASK_CREATE
+    return TASK_MESSAGE
 
-
-def create_tasks(update, context):
+def message(update, context):
     user = update.message.from_user
     logger.info(
         "Name of task to create for %s: %s", user.first_name, update.message.text
     )
-    _task = context.user_data["task"]
+    _task = context.user_data["task"] #habit / todo etc
     title = update.message.text
-    context.user_data["title"] = title
+    context.user_data["title"] = title #title of the task (name)
+    update.message.reply_text(
+        "Please key in details for {}?".format(title)
+    )
+    return TASK_CREATE
+
+def create_tasks(update, context):
+    user = update.message.from_user
+    logger.info(
+        "Message of task to create for %s: %s", user.first_name, update.message.text
+    )
+    message = update.message.text
+    context.user_data['message'] = message
     result = False
     others = {}
+    _task = context.user_data["task"]
+    title = context.user_data["title"]
     if _task == "todo":
-        result = api.create_todo(title)
+        result = api.create_todo(title, message)
     elif _task == "habit":
-        reply_keyboard = [["positive"], ["negative"]]
+        reply_keyboard = [["positive", "negative"]]
         update.message.reply_text(
             "What kind of habit is it?",
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
         return TASK_CREATE_HABIT
     elif _task == "daily":
-        result = api.create_daily(title)
+        result = api.create_daily(title, message)
     elif _task == "reward":
-        result = api.create_reward(title)
+        result = api.create_reward(title, message)
 
     if result:
         update.message.reply_text("I have helped you create {}".format(title))
@@ -228,8 +241,9 @@ def create_tasks_habit(update, context):
     )
     _title = context.user_data["title"]
     mode = update.message.text
+    message = context.user_data["message"]
     result = False
-    result = api.create_habit(_title, mode)
+    result = api.create_habit(_title, mode, message)
     if result:
         update.message.reply_text("I have helped you create {}".format(_title))
         update.message.reply_sticker(_completed_sticker)
@@ -449,8 +463,9 @@ def error(update, context):
 
 def scheduleHandler(update, context):
     query = update.callback_query
-    logging.info(query.data)
-    if (re.search("^1", query.data) != 'None'):
+    logging.info(re.search("^1", query.data))
+    completed = re.search("^1", query.data)
+    if completed != None:
         query.edit_message_text(text="Completed")
         api.mark_task_done(query.data[1:], 'up')
         api.mark_task_done(query.data[1:], 'down')
@@ -475,6 +490,7 @@ def main():
             TASK_NAME: [
                 MessageHandler(Filters.regex("^(habit|todo|reward|daily)$"), title)
             ],
+            TASK_MESSAGE: [MessageHandler(Filters.text, message)],
             TASK_CREATE: [MessageHandler(Filters.text, create_tasks)],
             TASK_CREATE_HABIT: [MessageHandler(Filters.text, create_tasks_habit)],
         },

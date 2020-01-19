@@ -71,39 +71,39 @@ def get_status():
 #     return task_id
 
 
-def create_todo(text):
-    resp = create_task(text, "todo", mode="").json()
+def create_todo(text, message):
+    resp = create_task(text, message, "todo", mode="").json()
     print(resp)
     return resp["success"]
 
 
-def create_daily(text):
-    return create_task(text, "daily", mode="").json()["success"]
+def create_daily(text, message):
+    return create_task(text, message, "daily", mode="").json()["success"]
 
 
-def create_habit(text, mode, up_enabled=True, down_enabled=True):
-    return create_task(text, "habit", mode).json()["success"]
+def create_habit(text, mode, message, up_enabled=True, down_enabled=True):
+    return create_task(text, message, "habit", mode).json()["success"]
 
 
-def create_reward(text):
-    return create_task(text, "reward", mode="").json()["success"]
+def create_reward(text, message):
+    return create_task(text, message, "reward", mode="").json()["success"]
 
 
-def create_task(text, task_type, mode):
+def create_task(text, message, task_type, mode):
     if mode != "" and mode == "positive":
         return requests.post(
             _url("/tasks/user"),
             headers=_headers,
-            data={"text": text, "type": task_type, "down": "false"},
+            data={"text": text, "type": task_type, "down": "false", "notes": message},
         )
     elif mode != "" and mode == "negative":
         return requests.post(
             _url("/tasks/user"),
             headers=_headers,
-            data={"text": text, "type": task_type, "up": "false"},
+            data={"text": text, "type": task_type, "up": "false", "notes": message},
         )
     return requests.post(
-        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type,},
+        _url("/tasks/user"), headers=_headers, data={"text": text, "type": task_type, "notes": message},
     )
 
 
