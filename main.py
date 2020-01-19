@@ -30,6 +30,7 @@ import api
 import schedule
 import time
 import threading
+import re
 
 
 class ScheduleThread(threading.Thread):
@@ -59,6 +60,8 @@ _all_daily_sticker = 'CAADBQADKAADbc38AeLNuuOwBynSFgQ'
 _motivation_sticker = 'CAADBQADLAADbc38AR9Fg89mOGwIFgQ'
 _motivation2_sticker = 'CAADBQADLQADbc38Acph7HcoKMhCFgQ'
 _motivation3_sticker = 'CAADBQADLgADbc38AWvtjZz2orqBFgQ'
+_level_up_sticker = 'CAADBQADMQADbc38AeYQ8SMwNfVWFgQ'
+_coin_sticker = 'CAADBQADMgADbc38AWOrA-yiyuDxFgQ'
 
 
 TASK_NAME, TASK_CREATE, TASK_CREATE_HABIT = range(3)
@@ -159,8 +162,8 @@ def remind_habits(update, context):
     for task in task_list:
         # Show the task with the option to mark the item as done // not done.
         keyboard = [
-            InlineKeyboardButton("Did it", callback_data="1"),
-            InlineKeyboardButton("Didn't do it", callback_data="2",),
+            InlineKeyboardButton("Did it", callback_data="1" + task[1]),
+            InlineKeyboardButton("Didn't do it", callback_data="2"+task[1]),
         ]
         reply_markup = InlineKeyboardMarkup(build_menu(keyboard, n_cols=1))
         logging.info("Printing: " + task[0])
@@ -183,7 +186,9 @@ def create_tasks_habit(update, context):
     if result:
         update.message.reply_text("I have helped you create {}".format(_title))
         update.message.reply_sticker(_completed_sticker)
-        schedule.every(30).seconds.do(remind_habits, update, context)
+        others = _create_keyboard(_get_task('habit'))
+        update.message.reply_text("Do not forget about these:\n - {}".format("\n - ".join([str(i[0]) for i in others])))
+        schedule.every(20).seconds.do(remind_habits, update, context)
         ScheduleThread().start()
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -282,10 +287,10 @@ def task_options(update, context):
     context.user_data["task"] = update.message.text
     task_list = _get_task(context.user_data["title"]) #todo / habit etc
     logging.info(task_list, context.user_data["task"]) #name of task
-    data = _get_id(task_list, context.user_data["task"])
+    data = _get_id(task_list, context.user_data["title"])
     context.user_data["task_id"] = data["id"]
     if context.user_data["title"] != 'habit':
-        reply_keyboard = [["Completed"], ["Delete"]]
+        reply_keyboard = [["Completed", "Cancel"], ["Delete"]]
 
         update.message.reply_text(
             "Notes: {}\n\n"
@@ -293,7 +298,7 @@ def task_options(update, context):
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
     else:
-        habit_reply_keyboard = [["Yes"], ["Delete"]]
+        habit_reply_keyboard = [["Yes", "Cancel"], ["Delete"]]
         context.user_data["_positive"] = "up"
         _votes = data["counterUp"]
         if data["down"] == True:
@@ -319,14 +324,23 @@ def handle_options(update, context):
     elif option == 'Yes':
         print(context.user_data["_positive"])
         result = api.mark_task_done(context.user_data["task_id"], context.user_data["_positive"])
-
+    elif option == 'Cancel':
+        return cancel(update, context)
     if result:
         update.message.reply_text(
             "{} successfully updated".format(context.user_data["task"])
         )
+        if (option == 'Yes'):
+            data = result["data"]
+            update.message.reply_sticker(_level_up_sticker)
+            update.message.reply_text(
+            "HP: {}\nExp Level: {}\nLevel: {}\nClass: {}".format(data['hp'], data['exp'], data['lvl'], data['class']),
+            reply_markup=ReplyKeyboardRemove()
+        )
     else:
         update.message.reply_text(
-            "{} Unsuccessfully {}".format(context.user_data["task"], option + "d")
+            "{} Unsuccessfully {}".format(context.user_data["task"], option + "d"),
+            reply_markup=ReplyKeyboardRemove()
         )
 
     return ConversationHandler.END
@@ -364,12 +378,15 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def _didit(update, context):
-    logging.info("Did pressed")
-
-
-def _didnot(update, context):
-    logging.info("Didn't do it")
+def scheduleHandler(update, context):
+    query = update.callback_query
+    logging.info(query.data)
+    if (re.search("^1", query.data) != 'None'):
+        query.edit_message_text(text="Completed")
+        api.mark_task_done(query.data[1:], 'up')
+        api.mark_task_done(query.data[1:], 'down')
+    else:
+        query.edit_message_text(text="Did not complete")
 
 
 def main():
@@ -412,8 +429,7 @@ def main():
 
     dp.add_handler(create_handler)
     dp.add_handler(view_handler)
-    dp.add_handler(CallbackQueryHandler(_didit, pattern="1"))
-    dp.add_handler(CallbackQueryHandler(_didnot, pattern="2"))
+    dp.add_handler(CallbackQueryHandler(scheduleHandler))
     # log all errors
     dp.add_error_handler(error)
 
