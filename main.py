@@ -61,9 +61,9 @@ _motivation_sticker = "CAADBQADLAADbc38AR9Fg89mOGwIFgQ"
 _motivation2_sticker = "CAADBQADLQADbc38Acph7HcoKMhCFgQ"
 _motivation3_sticker = "CAADBQADLgADbc38AWvtjZz2orqBFgQ"
 _motivation_stickers = [_motivation_sticker, _motivation2_sticker, _motivation3_sticker]
-_level_up_sticker = 'CAADBQADMQADbc38AeYQ8SMwNfVWFgQ'
-_coin_sticker = 'CAADBQADMgADbc38AWOrA-yiyuDxFgQ'
-_reward_sticker = 'CAADBQADMwADbc38Ab8X1fBrA7qZFgQ'
+_level_up_sticker = "CAADBQADMQADbc38AeYQ8SMwNfVWFgQ"
+_coin_sticker = "CAADBQADMgADbc38AWOrA-yiyuDxFgQ"
+_reward_sticker = "CAADBQADMwADbc38Ab8X1fBrA7qZFgQ"
 _quotes = [
     "If you want to achieve greatness stop asking for permission. --Anonymous",
     "Things work out best for those who make the best of how things work out. --John Wooden",
@@ -90,15 +90,21 @@ _quotes = [
 TASK_NAME, TASK_MESSAGE, TASK_CREATE, TASK_CREATE_HABIT = range(4)
 VIEW_LIST, TASK_OPTIONS, HANDLE_OPTIONS = range(3)
 
+_quote_time = 15
+_quote_pic_time = 50
+
 
 def quote_gen(update, context):
-    sticker = random.choice(_motivation_stickers)
-    logging.info(sticker)
-    context.bot.send_sticker(chat_id=update.effective_chat.id, sticker=sticker)
     quote = random.choice(_quotes)
     context.bot.send_message(
         chat_id=update.message.chat.id, text="{}".format(quote),
     )
+
+
+def quote_pic_gen(update, context):
+    sticker = random.choice(_motivation_stickers)
+    logging.info(sticker)
+    context.bot.send_sticker(chat_id=update.effective_chat.id, sticker=sticker)
 
 
 def start(update, context):
@@ -110,7 +116,8 @@ def start(update, context):
         + "*set userID and tokenId after with* /userid _userid here_ *and* /tokenid _tokenid here_ *respectively*",
         parse_mode="Markdown",
     )
-    schedule.every(10).seconds.do(quote_gen, update, context)
+    schedule.every(_quote_time).seconds.do(quote_gen, update, context)
+    schedule.every(_quote_pic_time).seconds.do(quote_pic_gen, update, context)
     ScheduleThread().start()
 
 
@@ -223,7 +230,7 @@ def remind_habits(update, context):
         # Show the task with the option to mark the item as done // not done.
         keyboard = [
             InlineKeyboardButton("Did it", callback_data="1" + task[1]),
-            InlineKeyboardButton("Didn't do it", callback_data="2"+task[1]),
+            InlineKeyboardButton("Didn't do it", callback_data="2" + task[1]),
         ]
         reply_markup = InlineKeyboardMarkup(build_menu(keyboard, n_cols=1))
         logging.info("Printing: " + task[0])
@@ -247,9 +254,13 @@ def create_tasks_habit(update, context):
     if result:
         update.message.reply_text("I have helped you create {}".format(_title))
         update.message.reply_sticker(_completed_sticker)
-        others = _create_keyboard(_get_task('habit'))
-        update.message.reply_text("Do not forget about these:\n - {}".format("\n - ".join([str(i[0]) for i in others])))
-        schedule.every(20).seconds.do(remind_habits, update, context)
+        others = _create_keyboard(_get_task("habit"))
+        update.message.reply_text(
+            "Do not forget about these:\n - {}".format(
+                "\n - ".join([str(i[0]) for i in others])
+            )
+        )
+        schedule.every(5).seconds.do(remind_habits, update, context)
         ScheduleThread().start()
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -327,14 +338,10 @@ def view_list(update, context):
 
 def _get_id(tasks, item):
     for i in tasks:
-        if item != "habit" and item != 'reward':
+        if item != "habit" and item != "reward":
             return {"id": i[1], "notes": i[2]}
-        elif item == 'reward':
-            return {
-                "id": i[1],
-                "notes": i[2],
-                "value": i[3]
-            }
+        elif item == "reward":
+            return {"id": i[1], "notes": i[2], "value": i[3]}
         else:
             return {
                 "id": i[1],
@@ -349,11 +356,11 @@ def _get_id(tasks, item):
 
 def task_options(update, context):
     context.user_data["task"] = update.message.text
-    task_list = _get_task(context.user_data["title"]) #todo / habit etc
-    logging.info(task_list, context.user_data["task"]) #name of task
+    task_list = _get_task(context.user_data["title"])  # todo / habit etc
+    logging.info(task_list, context.user_data["task"])  # name of task
     data = _get_id(task_list, context.user_data["title"])
     context.user_data["task_id"] = data["id"]
-    if context.user_data["title"] != 'habit' and context.user_data["title"] != 'reward':
+    if context.user_data["title"] != "habit" and context.user_data["title"] != "reward":
         reply_keyboard = [["Completed", "Cancel"], ["Delete"]]
 
         update.message.reply_text(
@@ -363,13 +370,13 @@ def task_options(update, context):
             ),
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
-    elif context.user_data["title"] == 'reward':
+    elif context.user_data["title"] == "reward":
         reply_keyboard = [["Claim", "Cancel"], ["Delete"]]
         update.message.reply_text(
             "Notes: {}\n\n"
             "Gold cost: {}\n"
             "What do you want to do with {}? \n".format(
-                data["notes"], data['value'], context.user_data["task"]
+                data["notes"], data["value"], context.user_data["task"]
             ),
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
@@ -394,37 +401,57 @@ def task_options(update, context):
 def handle_options(update, context):
     option = update.message.text
     result = False
-    if option == "Completed" or option == 'Claim':
+    if option == "Completed" or option == "Claim":
         logging.info("task id :" + context.user_data["task_id"])
         result = api.mark_task_done(context.user_data["task_id"], "up")
     elif option == "Delete":
         result = api.delete_task(context.user_data["task_id"])
     elif option == "Yes":
         print(context.user_data["_positive"])
-        result = api.mark_task_done(context.user_data["task_id"], context.user_data["_positive"])
-    elif option == 'Cancel':
+        result = api.mark_task_done(
+            context.user_data["task_id"], context.user_data["_positive"]
+        )
+    elif option == "Cancel":
         return cancel(update, context)
     if result:
-        if (option == 'Claim'):
+        if option == "Claim":
             success = result["success"]
             if not success:
-                update.message.reply_text("{}!\nCheck your /stats".format(result["message"], reply_markup=ReplyKeyboardRemove()))
+                update.message.reply_text(
+                    "{}!\nCheck your /stats".format(
+                        result["message"], reply_markup=ReplyKeyboardRemove()
+                    )
+                )
             return ConversationHandler.END
-
+        if context.user_data["title"] == "daily":
+            logging.info("Handling user daily's")
+            update.message.reply_text(
+                "{} successfully updated\nCheck your /stats".format(
+                    context.user_data["task"]
+                )
+            )
+            context.bot.send_sticker(
+                chat_id=update.effective_chat.id, sticker=_all_daily_sticker
+            )
+            return ConversationHandler.END
         update.message.reply_text(
-            "{} successfully updated\nCheck your /stats".format(context.user_data["task"])
+            "{} successfully updated\nCheck your /stats".format(
+                context.user_data["task"]
+            )
         )
-        if (option == 'Yes'):
+        if option == "Yes":
             data = result["data"]
             update.message.reply_sticker(_level_up_sticker)
             update.message.reply_text(
-            "HP: {}\nExp Level: {}\nLevel: {}\nClass: {}".format(data['hp'], data['exp'], data['lvl'], data['class']),
-            reply_markup=ReplyKeyboardRemove()
-        )
+                "HP: {}\nExp Level: {}\nLevel: {}\nClass: {}".format(
+                    data["hp"], data["exp"], data["lvl"], data["class"]
+                ),
+                reply_markup=ReplyKeyboardRemove(),
+            )
     else:
         update.message.reply_text(
             "{} Unsuccessfully {}".format(context.user_data["task"], option + "d"),
-            reply_markup=ReplyKeyboardRemove()
+            reply_markup=ReplyKeyboardRemove(),
         )
 
     return ConversationHandler.END
@@ -461,9 +488,9 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
+
 def scheduleHandler(update, context):
     query = update.callback_query
-    logging.info(re.search("^1", query.data))
     completed = re.search("^1", query.data)
     if completed != None:
         query.edit_message_text(text="Completed")
@@ -472,13 +499,12 @@ def scheduleHandler(update, context):
     else:
         query.edit_message_text(text="Did not complete")
 
-
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    # updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
-    updater = Updater("916014708:AAGdXdRaG-tlpzpiCH05KVk0oO26T6fGVNc", use_context=True)
+    updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
+    # updater = Updater("916014708:AAGdXdRaG-tlpzpiCH05KVk0oO26T6fGVNc", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
