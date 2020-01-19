@@ -141,6 +141,14 @@ def title(update, context):
     user = update.message.from_user
     logger.info("Task to create for %s: %s", user.first_name, update.message.text)
     context.user_data["task"] = update.message.text
+    if update.message.text == "todo":
+        update.message.reply_sticker(_todo_sticker)
+    elif update.message.text == "daily":
+        update.message.reply_sticker(_daily_sticker)
+    elif update.message.text == "habit":
+        update.message.reply_sticker(_habit_sticker)
+    else:
+        update.message.reply_sticker(_completed_sticker)
     update.message.reply_text(
         "What would you like to name your {}?".format(context.user_data["task"])
     )
@@ -304,7 +312,7 @@ def view_list(update, context):
 
 def _get_id(tasks, item):
     for i in tasks:
-        if item == i[0] and tasks != "habit":
+        if item != "habit":
             return {"id": i[1], "notes": i[2]}
         else:
             return {
@@ -400,6 +408,7 @@ def cancel(update, context):
 def stats(update, context):
     status = api.get_status()
     logging.info(status)
+    update.message.reply_sticker(_coin_sticker)
     update.message.reply_markdown(
         "Here are your stats: \n"
         + "- HP: {} \n".format(status["hp"])
@@ -431,7 +440,7 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
     # updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
-    updater = Updater("845289799:AAGynfA8Y3WmzK0oTDFMM92z6ADM04pVyIc", use_context=True)
+    updater = Updater("916014708:AAGdXdRaG-tlpzpiCH05KVk0oO26T6fGVNc", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
