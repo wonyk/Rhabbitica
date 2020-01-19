@@ -63,6 +63,7 @@ _motivation3_sticker = "CAADBQADLgADbc38AWvtjZz2orqBFgQ"
 _motivation_stickers = [_motivation_sticker, _motivation2_sticker, _motivation3_sticker]
 _level_up_sticker = 'CAADBQADMQADbc38AeYQ8SMwNfVWFgQ'
 _coin_sticker = 'CAADBQADMgADbc38AWOrA-yiyuDxFgQ'
+_reward_sticker = 'CAADBQADMwADbc38Ab8X1fBrA7qZFgQ'
 _quotes = [
     "If you want to achieve greatness stop asking for permission. --Anonymous",
     "Things work out best for those who make the best of how things work out. --John Wooden",
@@ -148,7 +149,7 @@ def title(update, context):
     elif update.message.text == "habit":
         update.message.reply_sticker(_habit_sticker)
     else:
-        update.message.reply_sticker(_completed_sticker)
+        update.message.reply_sticker(_reward_sticker)
     update.message.reply_text(
         "What would you like to name your {}?".format(context.user_data["task"])
     )
@@ -296,7 +297,7 @@ def view_list(update, context):
         elif title == "habit":
             update.message.reply_sticker(_habit_sticker)
         else:
-            update.message.reply_sticker(_completed_sticker)
+            update.message.reply_sticker(_reward_sticker)
         update.message.reply_text(
             "Here is your list of tasks in {}: \nYou can send the name of the actual task here \n".format(
                 title
@@ -312,8 +313,14 @@ def view_list(update, context):
 
 def _get_id(tasks, item):
     for i in tasks:
-        if item != "habit":
+        if item != "habit" and item != 'reward':
             return {"id": i[1], "notes": i[2]}
+        elif item == 'reward':
+            return {
+                "id": i[1],
+                "notes": i[2],
+                "value": i[3]
+            }
         else:
             return {
                 "id": i[1],
@@ -332,13 +339,23 @@ def task_options(update, context):
     logging.info(task_list, context.user_data["task"]) #name of task
     data = _get_id(task_list, context.user_data["title"])
     context.user_data["task_id"] = data["id"]
-    if context.user_data["title"] != 'habit':
+    if context.user_data["title"] != 'habit' and context.user_data["title"] != 'reward':
         reply_keyboard = [["Completed", "Cancel"], ["Delete"]]
 
         update.message.reply_text(
             "Notes: {}\n\n"
             "What do you want to do with {}? \n".format(
                 data["notes"], context.user_data["task"]
+            ),
+            reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+        )
+    elif context.user_data["title"] == 'reward':
+        reply_keyboard = [["Claim", "Cancel"], ["Delete"]]
+        update.message.reply_text(
+            "Notes: {}\n\n"
+            "Gold cost: {}\n"
+            "What do you want to do with {}? \n".format(
+                data["notes"], data['value'], context.user_data["task"]
             ),
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
         )
@@ -363,7 +380,7 @@ def task_options(update, context):
 def handle_options(update, context):
     option = update.message.text
     result = False
-    if option == "Completed":
+    if option == "Completed" or option == 'Claim':
         logging.info("task id :" + context.user_data["task_id"])
         result = api.mark_task_done(context.user_data["task_id"], "up")
     elif option == "Delete":
@@ -374,8 +391,14 @@ def handle_options(update, context):
     elif option == 'Cancel':
         return cancel(update, context)
     if result:
+        if (option == 'Claim'):
+            success = result["success"]
+            if not success:
+                update.message.reply_text("{}!\nCheck your /stats".format(result["message"], reply_markup=ReplyKeyboardRemove()))
+            return ConversationHandler.END
+
         update.message.reply_text(
-            "{} successfully updated".format(context.user_data["task"])
+            "{} successfully updated\nCheck your /stats".format(context.user_data["task"])
         )
         if (option == 'Yes'):
             data = result["data"]

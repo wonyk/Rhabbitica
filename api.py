@@ -49,7 +49,7 @@ def get_habits():
 
 def get_rewards():
     resp = get_tasks("rewards").json()
-    rewards = [(i["text"], i["_id"], i["notes"]) for i in resp["data"]]
+    rewards = [(i["text"], i["_id"], i["notes"], i["value"]) for i in resp["data"]]
     return rewards
 
 
