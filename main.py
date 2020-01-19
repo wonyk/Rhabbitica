@@ -246,7 +246,7 @@ def create_tasks_habit(update, context):
                 "\n - ".join([str(i[0]) for i in others])
             )
         )
-        schedule.every(20).seconds.do(remind_habits, update, context)
+        schedule.every(5).seconds.do(remind_habits, update, context)
         ScheduleThread().start()
     else:
         update.message.reply_text("error creating {}".format(title))
@@ -474,15 +474,17 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
+
 def scheduleHandler(update, context):
     query = update.callback_query
     logging.info(query.data)
-    if re.search("^1", query.data) != "None":
+    logging.info(re.search("^1", query.data))
+    if re.search("^1", query.data) == None:
+        query.edit_message_text(text="Did not complete")
+    else:
         query.edit_message_text(text="Completed")
         api.mark_task_done(query.data[1:], "up")
         api.mark_task_done(query.data[1:], "down")
-    else:
-        query.edit_message_text(text="Did not complete")
 
 
 def main():
