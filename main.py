@@ -367,7 +367,7 @@ def handle_options(update, context):
         )
     else:
         update.message.reply_text(
-            "{} Unsuccessfully {}".format(context.user_data["task"], option + "d")
+            "{} unsuccessfully {}".format(context.user_data["task"], option + "d")
         )
 
     return ConversationHandler.END
@@ -406,7 +406,7 @@ def error(update, context):
 
 
 def _didit(update, context):
-    logging.info("Did pressed")
+    logging.info("Did it")
 
 
 def _didnot(update, context):
