@@ -1,11 +1,9 @@
 import requests
+import os
 
-
-_uid = "43a51e03-bf00-4832-a47e-411ec309466f"
-_tid = "ff4bc2bc-a9d8-4e87-831e-e6b886466bec"
 _headers = {
-    "x-api-user": _uid,
-    "x-api-key": _tid,
+    "x-api-user": os.getenv("HABITICA_API_USER"),
+    "x-api-key": os.getenv("HABITICA_API_KEY"),
 }
 
 

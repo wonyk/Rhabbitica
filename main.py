@@ -1,12 +1,9 @@
 import logging
 import json
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-
-conf = {
-    "url": "https://habitica.com",
-    "login": "43a51e03-bf00-4832-a47e-411ec309466f",
-    "password": "ff4bc2bc-a9d8-4e87-831e-e6b886466bec",
-}
 # api = Habitipy(conf)
 # print(api.user.get())
 
@@ -31,7 +28,6 @@ import time
 import threading
 import re
 import random
-import key
 
 
 class ScheduleThread(threading.Thread):
@@ -534,7 +530,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(key.get_api_key(), use_context=True)
+    updater = Updater(os.getenv("TELEGRAM_API_KEY"), use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
