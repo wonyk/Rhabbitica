@@ -1,4 +1,4 @@
-![Icon of Rhbbitica bot](https://github.com/ElasticBottle/hackAndRoll2020/blob/master/img/icon%20(1).png)
+![Icon of Rhbbitica bot](img/icon%20(1).png)
 
 I am Rhabbit, your loyal assistant who will be joining you on your journey of self improvement.
 
@@ -13,4 +13,4 @@ And remember to get decked out!
 Remember to bring your friends along too!
 
 Screenshot:
-![Screenshot of Rhbbitica bot](https://github.com/ElasticBottle/hackAndRoll2020/blob/master/img/Screenshot_20200119-113141_Telegram%20X.jpg)
+![Screenshot of Rhbbitica bot](img/Screenshot_20200119-113141_Telegram%20X.jpg)

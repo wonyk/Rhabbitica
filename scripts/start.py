@@ -46,18 +46,14 @@ def get_user_key(update, context):
     return -1
 
 
-def restart(update, context):
-    logging.info("Unexpected command within conversation")
-
-
 # Add conversation for init basic data using start
 start_handler = ConversationHandler(
-    entry_points=[CommandHandler("start", start), CommandHandler("restart", start)],
+    entry_points=[CommandHandler("start", start)],
     states={
         SET_USER_ID: [MessageHandler(Filters.text, get_user_id)],
         SET_USER_KEY: [MessageHandler(Filters.text, get_user_key)],
     },
-    fallbacks=[CommandHandler("restart", restart)],
+    fallbacks=[CommandHandler("restart", start)],
     allow_reentry=True
 )
 
