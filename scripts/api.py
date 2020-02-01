@@ -1,5 +1,6 @@
 import requests
 import os
+import logging
 
 # Dev:
 _uid = os.getenv("HABITICA_API_USER")
@@ -9,20 +10,17 @@ _key = os.getenv("HABITICA_API_KEY")
 # _uid = None
 # _key = None
 
-_headers = {
-    "x-api-user": _uid,
-    "x-api-key": _key
-}
+_headers = {"x-api-user": _uid, "x-api-key": _key}
+
 
 def _url(path):
     return "https://habitica.com/api/v3" + path
 
 
-def set_user_id(uid):
-    _uid = uid
-
-def set_user_key(key):
-    _key = key
+def set_user_data(id, key):
+    _headers["x-api-user"] = id
+    _headers["x-api-key"] = key
+    logging.info(_headers)
 
 
 def get_todo():
