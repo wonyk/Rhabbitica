@@ -3,7 +3,8 @@ import json
 import os
 # Import script files
 import api
-import start
+from start import start_handler
+from help import help
 
 # Uses .env files to load sensitive information
 from dotenv import load_dotenv
@@ -102,12 +103,6 @@ _quotes = [
 #     sticker = random.choice(_motivation_stickers)
 #     logging.info(sticker)
 #     context.bot.send_sticker(chat_id=update.effective_chat.id, sticker=sticker)
-
-# def help(update, context):
-#     context.bot.send_message(
-#         chat_id=update.effective_chat.id,
-#         text="To create a task: /create\n\nTo view your tasks: /view",
-#     )
 
 
 # def create(update, context):
@@ -455,7 +450,6 @@ _quotes = [
 
 
 def error(update, context):
-    """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 # def scheduleHandler(update, context):
@@ -503,8 +497,8 @@ def main():
     #     fallbacks=[CommandHandler("cancel", cancel)],
     # )
 
-    dp.add_handler(start.start_handler)
-    # dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(start_handler)
+    dp.add_handler(CommandHandler("help", help))
     # dp.add_handler(CommandHandler("stats", stats))
     # dp.add_handler(create_handler)
     # dp.add_handler(view_handler)
