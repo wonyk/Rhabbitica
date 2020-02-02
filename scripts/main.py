@@ -5,6 +5,7 @@ import os
 import api
 from start import start_handler
 from help import help
+# from stats import stats
 
 # Uses .env files to load sensitive information
 from dotenv import load_dotenv
@@ -433,20 +434,6 @@ _quotes = [
 #     update.message.reply_sticker(_motivation2_sticker)
 
 #     return ConversationHandler.END
-
-
-# def stats(update, context):
-#     status = api.get_status()
-#     logging.info(status)
-#     update.message.reply_sticker(_coin_sticker)
-#     update.message.reply_markdown(
-#         "Here are your stats: \n"
-#         + "- HP: {} \n".format(status["hp"])
-#         + "- Mana Points: {} \n".format(round(status["mp"], 1))
-#         + "- Exp: {}\n".format(status["exp"])
-#         + "- Gold: {}\n".format(round(status["gp"], 1))
-#         + "- level: {}\n".format(status["lvl"]),
-#     )
 
 
 def error(update, context):

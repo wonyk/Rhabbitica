@@ -6,7 +6,7 @@ import logging
 _uid = os.getenv("HABITICA_API_USER")
 _key = os.getenv("HABITICA_API_KEY")
 
-# Prod:
+# Prod: (To get the key from login)
 # _uid = None
 # _key = None
 
@@ -17,10 +17,19 @@ def _url(path):
     return "https://habitica.com/api/v3" + path
 
 
-def set_user_data(id, key):
-    _headers["x-api-user"] = id
-    _headers["x-api-key"] = key
-    logging.info(_headers)
+def login(name, pw):
+    auth = {"username": name, "password": pw}
+    try:
+        r = requests.post(_url("/user/auth/local/login"), data=auth)
+        jsonData = r.json()
+        if jsonData["success"] == True:
+            _headers["x-api-user"] = jsonData["data"]["id"]
+            _headers["x-api-key"] = jsonData["data"]["apiToken"]
+            logging.info(_headers)
+        return jsonData
+    except requests.exceptions.RequestException as e:
+        logging.warning(e)
+        return False
 
 
 def get_todo():

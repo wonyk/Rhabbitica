@@ -8,5 +8,5 @@ def help(update, context):
         + "/stats - view your Habitica stats"
         + "\n\n*User Profile*"
         + "\n/start - Reset user profile",
-        parse_mode='Markdown'
+        parse_mode="Markdown",
     )
