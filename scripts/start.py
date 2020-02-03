@@ -12,7 +12,7 @@ def start(update, context):
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text="Hello! My name is *Rhabbit*. Welcome to Rhabbitica, an alternate universe of the *Habitica* world! Before we get started, could I trouble you to identify yourself?"
-        + "\n\nPlease key in your Habitica username or email",
+        + "\n\nPlease key in your Habitica username or email:",
         parse_mode="Markdown",
     )
     return SET_USERNAME
@@ -28,7 +28,7 @@ def get_username(update, context):
         chat_id=update.message.chat_id,
         text="Username / Email set: *"
         + username
-        + "*\n\nNext, please key in your Habitica Password"
+        + "*\n\nNext, please key in your Habitica Password:"
         + "\n\nTo restart: /restart",
         parse_mode="Markdown",
     )
@@ -39,6 +39,9 @@ def get_username(update, context):
 # Function linked to SET_USERPASS
 def get_userpass(update, context):
     password = update.message.text
+    context.bot.delete_message(
+        chat_id=update.message.chat_id, message_id=update.message.message_id,
+    )
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text="Password entered successfully. Logging you in...",
@@ -63,10 +66,15 @@ def get_userpass(update, context):
             chat_id=update.message.chat_id,
             text="Welcome to Rhabbitica, "
             + res["data"]["username"]
-            + "\nYou may start enjoying Rhabbitica's functions now!*"
+            + "\nYou may start enjoying Rhabbitica's functions now!"
             + "\n\nTo get started: /help"
             + "\nTo reset your credentials: /start",
         )
+        context.user_data["auth"] = {
+            "_uid": res["data"]["id"],
+            "_key": res["data"]["apiToken"],
+        }
+        logging.info(context.user_data["auth"])
         return -1
     else:
         context.bot.send_message(
@@ -75,6 +83,12 @@ def get_userpass(update, context):
             + "\n\nPlease key in your Habitica username or email",
             parse_mode="Markdown",
         )
+        # Remove the previous auth if user sends in wrong details
+        context.user_data["auth"] = {
+            "_uid": "",
+            "_key": "",
+        }
+        logging.info(context.user_data["auth"])
         return SET_USERNAME
 
 

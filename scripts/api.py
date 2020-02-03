@@ -5,12 +5,16 @@ import logging
 # Dev:
 _uid = os.getenv("HABITICA_API_USER")
 _key = os.getenv("HABITICA_API_KEY")
+_creatorID = os.getenv("HABITICA_API_USER") + "-RabbitHabitica"
+_headers = {"x-api-user": _uid, "x-api-key": _key, "x-client": _creatorID}
 
-# Prod: (To get the key from login)
-# _uid = None
-# _key = None
 
-_headers = {"x-api-user": _uid, "x-api-key": _key}
+def get_headers(auth):
+    return {
+        "x-api-user": auth["_uid"],
+        "x-api-key": auth["_key"],
+        "x-client": _creatorID,
+    }
 
 
 def _url(path):
@@ -22,10 +26,6 @@ def login(name, pw):
     try:
         r = requests.post(_url("/user/auth/local/login"), data=auth)
         jsonData = r.json()
-        if jsonData["success"] == True:
-            _headers["x-api-user"] = jsonData["data"]["id"]
-            _headers["x-api-key"] = jsonData["data"]["apiToken"]
-            logging.info(_headers)
         return jsonData
     except requests.exceptions.RequestException as e:
         logging.warning(e)
