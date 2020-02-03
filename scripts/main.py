@@ -5,7 +5,7 @@ import os
 import api
 from start import start_handler
 from help import help
-# from stats import stats
+from stats import stats
 
 # Uses .env files to load sensitive information
 from dotenv import load_dotenv
@@ -486,7 +486,7 @@ def main():
 
     dp.add_handler(start_handler)
     dp.add_handler(CommandHandler("help", help))
-    # dp.add_handler(CommandHandler("stats", stats))
+    dp.add_handler(CommandHandler("stats", stats))
     # dp.add_handler(create_handler)
     # dp.add_handler(view_handler)
     # dp.add_handler(CallbackQueryHandler(scheduleHandler))

@@ -84,11 +84,8 @@ def get_userpass(update, context):
             parse_mode="Markdown",
         )
         # Remove the previous auth if user sends in wrong details
-        context.user_data["auth"] = {
-            "_uid": "",
-            "_key": "",
-        }
-        logging.info(context.user_data["auth"])
+        if "auth" in context.user_data:
+            context.user_data.pop("auth")
         return SET_USERNAME
 
 

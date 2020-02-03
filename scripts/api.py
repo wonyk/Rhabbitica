@@ -8,7 +8,7 @@ _key = os.getenv("HABITICA_API_KEY")
 _creatorID = os.getenv("HABITICA_API_USER") + "-RabbitHabitica"
 _headers = {"x-api-user": _uid, "x-api-key": _key, "x-client": _creatorID}
 
-
+# Prod:
 def get_headers(auth):
     return {
         "x-api-user": auth["_uid"],
@@ -31,6 +31,16 @@ def login(name, pw):
         logging.warning(e)
         return False
 
+
+def get_status(auth):
+    try:
+        r = requests.get("https://habitica.com/export/userdata.json", headers=get_headers(auth))
+        r.raise_for_status()
+        res = r.json()["stats"]
+        return res
+    except requests.exceptions.RequestException as e:
+        logging.warning(e)
+        return False
 
 def get_todo():
     resp = get_tasks("todos").json()
@@ -71,12 +81,6 @@ def get_tasks(task_type):
     return requests.get(
         _url("/tasks/user"), params={"type": task_type}, headers=_headers,
     )
-
-
-def get_status():
-    return requests.get(
-        "https://habitica.com/export/userdata.json", headers=_headers,
-    ).json()["stats"]
 
 
 # def get_task_id(task_name, task_type):
