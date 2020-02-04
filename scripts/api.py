@@ -7,6 +7,7 @@ _uid = os.getenv("HABITICA_API_USER")
 _key = os.getenv("HABITICA_API_KEY")
 _creatorID = os.getenv("HABITICA_API_USER") + "-RabbitHabitica"
 _headers = {"x-api-user": _uid, "x-api-key": _key, "x-client": _creatorID}
+_auth = {"_uid": _uid, "_key": _key}
 
 # Prod:
 def get_headers(auth):
@@ -34,7 +35,7 @@ def login(name, pw):
 
 def get_status(auth):
     try:
-        r = requests.get("https://habitica.com/export/userdata.json", headers=get_headers(auth))
+        r = requests.get("https://habitica.com/export/userdata.json", headers=get_headers(_auth))
         r.raise_for_status()
         res = r.json()["stats"]
         return res
