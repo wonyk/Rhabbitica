@@ -9,13 +9,8 @@ _creatorID = os.getenv("HABITICA_API_USER") + "-RabbitHabitica"
 _headers = {"x-api-user": _uid, "x-api-key": _key, "x-client": _creatorID}
 _auth = {"_uid": _uid, "_key": _key}
 
-# Prod:
-def get_headers(auth):
-    return {
-        "x-api-user": auth["_uid"],
-        "x-api-key": auth["_key"],
-        "x-client": _creatorID,
-    }
+# Create a request session for every user
+s = requests.Session()
 
 
 def _url(path):
@@ -25,23 +20,32 @@ def _url(path):
 def login(name, pw):
     auth = {"username": name, "password": pw}
     try:
-        r = requests.post(_url("/user/auth/local/login"), data=auth)
+        r = s.post(_url("/user/auth/local/login"), data=auth)
         jsonData = r.json()
+        if jsonData['success'] == True:
+            s.headers.update(
+                {
+                    "x-api-user": jsonData["data"]["id"],
+                    "x-api-key": jsonData["data"]["apiToken"],
+                    "x-client": _creatorID,
+                }
+            )
         return jsonData
     except requests.exceptions.RequestException as e:
         logging.warning(e)
         return False
 
 
-def get_status(auth):
+def get_stats():
     try:
-        r = requests.get("https://habitica.com/export/userdata.json", headers=get_headers(_auth))
+        r = s.get("https://habitica.com/export/userdata.json")
         r.raise_for_status()
         res = r.json()["stats"]
         return res
     except requests.exceptions.RequestException as e:
         logging.warning(e)
         return False
+
 
 def get_todo():
     resp = get_tasks("todos").json()
@@ -79,9 +83,7 @@ def get_rewards():
 
 
 def get_tasks(task_type):
-    return requests.get(
-        _url("/tasks/user"), params={"type": task_type}, headers=_headers,
-    )
+    return s.get(_url("/tasks/user"), params={"type": task_type})
 
 
 # def get_task_id(task_name, task_type):
@@ -110,32 +112,27 @@ def create_reward(text, message):
 
 def create_task(text, message, task_type, mode):
     if mode != "" and mode == "positive":
-        return requests.post(
+        return s.post(
             _url("/tasks/user"),
-            headers=_headers,
             data={"text": text, "type": task_type, "down": "false", "notes": message},
         )
     elif mode != "" and mode == "negative":
-        return requests.post(
+        return s.post(
             _url("/tasks/user"),
-            headers=_headers,
             data={"text": text, "type": task_type, "up": "false", "notes": message},
         )
-    return requests.post(
+    return s.post(
         _url("/tasks/user"),
-        headers=_headers,
         data={"text": text, "type": task_type, "notes": message, "value": 10},
     )
 
 
 def mark_task_done(task_id, direction):
-    return requests.post(
-        _url("/tasks/" + task_id + "/score/" + direction), headers=_headers,
-    ).json()
+    return s.post(_url("/tasks/" + task_id + "/score/" + direction)).json()
 
 
 def delete_task(task_id):
-    resp = requests.delete(_url("/tasks/" + task_id), headers=_headers)
+    resp = s.delete(_url("/tasks/" + task_id))
     return resp.status_code == 200
 
 
@@ -144,8 +141,7 @@ def mark_checklist(task_id, task_type):
 
 
 def update_task(task_id, text, notes, priority):
-    return requests.post(
+    return s.post(
         _url("/tasks/" + task_id),
-        headers=_headers,
         data={"text": text, "notes": notes, "priority": priority},
     ).json()["success"]

@@ -50,27 +50,19 @@ def get_userpass(update, context):
         return -1
     elif res["success"] == True:
         update.message.reply_sticker(_reward_sticker)
-        update.message.reply_text(
-            "Welcome to Rhabbitica, "
+        update.message.reply_markdown(
+            "*Welcome to Rhabbitica*, _"
             + res["data"]["username"]
-            + "\nYou may start enjoying Rhabbitica's functions now!"
+            + "_\nYou may start enjoying Rhabbitica's functions now!"
             "\n\nTo get started: /help"
             "\nTo reset your credentials: /start",
         )
-        context.user_data["auth"] = {
-            "_uid": res["data"]["id"],
-            "_key": res["data"]["apiToken"],
-        }
-        logging.info(context.user_data["auth"])
         return -1
     else:
         update.message.reply_markdown(
             "Your email address / username or password is incorrect. Please try again."
             "\n\nPlease key in your Habitica username or email",
         )
-        # Remove the previous auth if user sends in wrong details
-        if "auth" in context.user_data:
-            context.user_data.pop("auth")
         return SET_USERNAME
 
 

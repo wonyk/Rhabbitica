@@ -16,15 +16,14 @@ _habit_sticker = "CAADBQADKgADbc38ASR-zdsxRORsFgQ"
 _daily_sticker = "CAADBQADKQADbc38AYPOBlWsse41FgQ"
 _motivation2_sticker = "CAADBQADLQADbc38Acph7HcoKMhCFgQ"
 
-
+# Called when /create is matched
 def create(update, context):
     reply_keyboard = [["habit", "todo"], ["reward", "daily"]]
     update.message.reply_sticker(_start_sticker)
     update.message.reply_markdown(
         "Hi! I am Rhabbit, your personal assistant, great to see you again!"
         "\nLet me help you create a new task."
-        "\nTo cancel: /cancel"
-        "\nTo restart: /create\n\n"
+        "\nTo cancel: /cancel\n"
         "What kind of tasks do you want to create?\n"
         "*Habits* don't have a rigid schedule. You can check them off multiple times per day.\n"
         "*Dailies* repeat on a regular basis. Choose the schedule that works best for you!\n"
