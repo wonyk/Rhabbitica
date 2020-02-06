@@ -12,17 +12,27 @@ _auth = {"_uid": _uid, "_key": _key}
 # Create a request session for every user
 s = requests.Session()
 
+# Dev
+s.headers.update(
+    {
+        "x-api-user": _uid,
+        "x-api-key": _key,
+        "x-client": _creatorID,
+    }
+)
+
 
 def _url(path):
     return "https://habitica.com/api/v3" + path
 
 
+# Start.py
 def login(name, pw):
     auth = {"username": name, "password": pw}
     try:
         r = s.post(_url("/user/auth/local/login"), data=auth)
         jsonData = r.json()
-        if jsonData['success'] == True:
+        if jsonData["success"] == True:
             s.headers.update(
                 {
                     "x-api-user": jsonData["data"]["id"],
@@ -36,12 +46,35 @@ def login(name, pw):
         return False
 
 
+# Stats.py
 def get_stats():
     try:
         r = s.get("https://habitica.com/export/userdata.json")
         r.raise_for_status()
         res = r.json()["stats"]
         return res
+    except requests.exceptions.RequestException as e:
+        logging.warning(e)
+        return False
+
+
+# Create.py
+def create_task(text, type, description, *args):
+    # *args - (optional) Only for Habits which positive or negative is required
+    createBody = {"text": text, "type": type, "notes": description, "value": 10}
+    # up means positive, thus down is False and vice versa
+    if "up" in args:
+        createBody["down"] = "false"
+    elif "down" in args:
+        createBody["up"] = "true"
+    try:
+        r = s.post(_url("/tasks/user"), data=createBody)
+        r.raise_for_status()
+        res = r.json()
+        return res
+    except requests.exceptions.HTTPError:
+        logging.error("not authorised")
+        return {"success": False}
     except requests.exceptions.RequestException as e:
         logging.warning(e)
         return False
@@ -90,41 +123,6 @@ def get_tasks(task_type):
 #     resp = get_tasks(task_type).json()
 #     task_id = [i["_id"] for i in resp["data"] if i["text"] == task_name]
 #     return task_id
-
-
-def create_todo(text, message):
-    resp = create_task(text, message, "todo", mode="").json()
-    print(resp)
-    return resp["success"]
-
-
-def create_daily(text, message):
-    return create_task(text, message, "daily", mode="").json()["success"]
-
-
-def create_habit(text, mode, message, up_enabled=True, down_enabled=True):
-    return create_task(text, message, "habit", mode).json()["success"]
-
-
-def create_reward(text, message):
-    return create_task(text, message, "reward", mode="").json()["success"]
-
-
-def create_task(text, message, task_type, mode):
-    if mode != "" and mode == "positive":
-        return s.post(
-            _url("/tasks/user"),
-            data={"text": text, "type": task_type, "down": "false", "notes": message},
-        )
-    elif mode != "" and mode == "negative":
-        return s.post(
-            _url("/tasks/user"),
-            data={"text": text, "type": task_type, "up": "false", "notes": message},
-        )
-    return s.post(
-        _url("/tasks/user"),
-        data={"text": text, "type": task_type, "notes": message, "value": 10},
-    )
 
 
 def mark_task_done(task_id, direction):
