@@ -76,7 +76,7 @@ def create_task(text, type, description, *args):
         return False
 
 
-# View.py
+# View.py / Create.py (after creation)
 def get_tasks(task_type):
     try:
         r = s.get(_url("/tasks/user"), params={"type": task_type})

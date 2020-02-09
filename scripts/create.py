@@ -128,6 +128,13 @@ def create_success(update, result):
         "Name: {}\n"
         "Notes: {}".format(data["type"], data["text"], data["notes"])
     )
+    otherTasks = api.get_tasks(data["type"] + "s")
+    update.message.reply_markdown(
+        "*Here are all your tasks, please do not forget about them*:\n{}".format(
+            "\n".join([str(i[0]) for i in otherTasks["keyboard"]])
+        ),
+        reply_markup=ReplyKeyboardRemove(),
+    )
     # others = _create_keyboard(_get_task("habit"))
     # update.message.reply_text(
     #     "Do not forget about these:\n - {}".format(
