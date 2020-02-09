@@ -27,7 +27,7 @@ def create(update, context):
         "\nTo cancel: /cancel\n\n"
         "What kind of tasks do you want to create?\n"
         "*Habits* don't have a rigid schedule. You can check them off multiple times per day.\n"
-        "*Dailies* repeat on a regular basis. Choose the schedule that works best for you!\n"
+        "*Dailys* repeat on a regular basis. Choose the schedule that works best for you!\n"
         "*To-dos* keep yourself on check!\n"
         "Customise your *rewards*, it's up to you!",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
@@ -188,10 +188,9 @@ def create_success(update, result):
 
 
 def cancel(update, context):
-    user = update.message.from_user
-    logging.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        "Bye! Let me know when you want to come back to Rhabbitica.",
+        "Bye! Let me know when you want to create a new task.\n"
+        "You can always do that using /create",
         reply_markup=ReplyKeyboardRemove(),
     )
     update.message.reply_sticker(_motivation2_sticker)
