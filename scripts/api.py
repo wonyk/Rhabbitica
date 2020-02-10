@@ -163,6 +163,26 @@ def delete_task(task_id):
         return False
 
 
+# alltasks.py
+def getAll():
+    try:
+        data = {"habit": [], "reward": [], "todo": [], "daily": []}
+        r = s.get(_url("/tasks/user"))
+        r.raise_for_status()
+        res = r.json()["data"]
+        for task in res:
+            data[task["type"]].append(
+                {"_id": task["_id"], "text": task["text"]}
+            )
+        return {"success": True, "data": data}
+    except requests.exceptions.HTTPError:
+        logging.error("not authorised")
+        return {"success": False}
+    except requests.exceptions.RequestException as e:
+        logging.warning(e)
+        return False
+
+
 # def get_todo():
 #     resp = get_tasks("todos").json()
 #     todos = [(i["text"], i["_id"], i["notes"]) for i in resp["data"]]
@@ -208,12 +228,12 @@ def delete_task(task_id):
 #     return task_id
 
 
-def mark_checklist(task_id, task_type):
-    pass
+# def mark_checklist(task_id, task_type):
+#     pass
 
 
-def update_task(task_id, text, notes, priority):
-    return s.post(
-        _url("/tasks/" + task_id),
-        data={"text": text, "notes": notes, "priority": priority},
-    ).json()["success"]
+# def update_task(task_id, text, notes, priority):
+#     return s.post(
+#         _url("/tasks/" + task_id),
+#         data={"text": text, "notes": notes, "priority": priority},
+#     ).json()["success"]

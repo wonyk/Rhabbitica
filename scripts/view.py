@@ -69,7 +69,7 @@ def task_list(update, context):
             "To create now: /create".format(taskType),
             reply_markup=ReplyKeyboardRemove(),
         )
-    return -1
+    return ConversationHandler.END
 
 
 # Function linked from TASK_OPTIONS
@@ -154,7 +154,7 @@ def handle_options(update, context):
                 "An error has occurred. Please try again later.",
                 reply_markup=ReplyKeyboardRemove(),
             )
-        return -1
+        return ConversationHandler.END
     # Universal Cancel
     elif option == "Cancel":
         return cancel(update, context)
@@ -192,7 +192,7 @@ def actionSuccess(update, context, result):
             "An *error* occurred while performing the action. Please try again.",
             reply_markup=ReplyKeyboardRemove(),
         )
-    return -1
+    return ConversationHandler.END
 
     # if result:
     #     if option == "Claim":

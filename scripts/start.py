@@ -47,17 +47,16 @@ def get_userpass(update, context):
         update.message.reply_text(
             "The server encountered an error. Please try again later.",
         )
-        return -1
+        return ConversationHandler.END
     elif res["success"] == True:
         update.message.reply_sticker(_reward_sticker)
         update.message.reply_markdown(
             "*Welcome to Rhabbitica*, _"
             + res["data"]["username"]
             + "_\nYou may start enjoying Rhabbitica's functions now!"
-            "\n\nTo get started: /help"
-            "\nTo reset your credentials: /start",
+            "\n\nTo get started: /help",
         )
-        return -1
+        return ConversationHandler.END
     else:
         update.message.reply_markdown(
             "Your email address / username or password is incorrect. Please try again."

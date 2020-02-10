@@ -7,6 +7,7 @@ import api
 from start import start_handler
 from help import help
 from stats import stats
+from alltasks import alltasks
 from create import create_handler
 from view import view_handler
 
@@ -51,8 +52,6 @@ from telegram.ext import (
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
-
-logger = logging.getLogger(__name__)
 
 
 # declare constants
@@ -108,7 +107,7 @@ _quotes = [
 #     context.bot.send_sticker(chat_id=update.effective_chat.id, sticker=sticker)
 
 def error(update, context):
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
+    logging.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 # def scheduleHandler(update, context):
@@ -132,6 +131,7 @@ def main():
     dp.add_handler(start_handler)
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("stats", stats))
+    dp.add_handler(CommandHandler("alltasks", alltasks))
     dp.add_handler(create_handler)
     dp.add_handler(view_handler)
     # dp.add_handler(CallbackQueryHandler(scheduleHandler))
