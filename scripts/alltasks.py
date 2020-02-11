@@ -12,10 +12,12 @@ def alltasks(update, context):
             "Here are your tasks as a whole:\n\n"
             "*Todos*:\n - {}\n\n"
             "*Habits*:\n - {}\n\n"
-            "*Dailys*:\n - {}\n\n".format(
+            "*Dailys*:\n - {}\n\n"
+            "*Rewards awaiting your claim*:\n - {}".format(
                 "\n - ".join([todo["text"] for todo in task["todo"]]),
                 "\n - ".join([habit["text"] for habit in task["habit"]]),
                 "\n - ".join([daily["text"] for daily in task["daily"]]),
+                "\n - ".join([reward["text"] for reward in task["reward"]]),
             )
         )
     elif not raw["success"]:

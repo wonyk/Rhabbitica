@@ -1,6 +1,7 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters, ConversationHandler
 import api
 import logging
+from job import set_reminders
 
 SET_USERNAME, SET_USERPASS = range(2)
 _start_sticker = "CAADBQADLwADbc38AdU1wUDmBM3jFgQ"
@@ -56,6 +57,8 @@ def get_userpass(update, context):
             + "_\nYou may start enjoying Rhabbitica's functions now!"
             "\n\nTo get started: /help",
         )
+        # Init the hourly reminders
+        set_reminders(update, context)
         return ConversationHandler.END
     else:
         update.message.reply_markdown(
