@@ -1,4 +1,4 @@
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import CommandHandler, MessageHandler, Filters, ConversationHandler
 import api
 import logging
@@ -26,7 +26,7 @@ def view_task(update, context):
         "*Habits* don't have a rigid schedule. You can check them off multiple times per day.\n"
         "*Dailys* repeat on a regular basis. Choose the schedule that works best for you!\n"
         "*To-dos* keep yourself on check!\n"
-        "Customise your *rewards*, it's up to you!",
+        "Claim your favourite *rewards*, give yourself a break!",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
@@ -78,10 +78,7 @@ def task_options(update, context):
     # '2: Cycle Daily'. The regex will extract the index before the task name.
     array = re.split(": ", update.message.text)
     index = int(array[0]) - 1
-    # task_list = api.get_tasks(context.user_data["title"])  # todo / habit etc
-    # logging.info(task_list, context.user_data["task"])  # name of task
-    # data = _get_id(task_list, context.user_data["title"])
-    # context.user_data["task_id"] = data["id"]
+
     taskType = context.user_data["viewType"]
     data = context.user_data["taskData"][index]
     context.user_data["indivTaskDetails"] = data
@@ -194,77 +191,11 @@ def actionSuccess(update, context, result):
         )
     return ConversationHandler.END
 
-    # if result:
-    #     if option == "Claim":
-    #         success = result["success"]
-    #         if not success:
-    #             update.message.reply_text(
-    #                 "{}!\nCheck your /stats".format(
-    #                     result["message"], reply_markup=ReplyKeyboardRemove()
-    #                 )
-    #             )
-    #         return ConversationHandler.END
-    #     if context.user_data["title"] == "daily":
-    #         logging.info("Handling user daily's")
-    #         update.message.reply_text(
-    #             "{} successfully updated\nCheck your /stats".format(
-    #                 context.user_data["task"]
-    #             )
-    #         )
-    #         context.bot.send_sticker(
-    #             chat_id=update.effective_chat.id, sticker=_all_daily_sticker
-    #         )
-    #         return ConversationHandler.END
-    #     update.message.reply_text(
-    #         "{} successfully updated\nCheck your /stats".format(
-    #             context.user_data["task"]
-    #         )
-    #     )
-    #     if option == "Yes":
-    #         data = result["data"]
-    #         update.message.reply_sticker(_level_up_sticker)
-    #         update.message.reply_text(
-    #             "HP: {}\nExp Level: {}\nLevel: {}\nClass: {}".format(
-    #                 data["hp"], data["exp"], data["lvl"], data["class"]
-    #             ),
-    #             reply_markup=ReplyKeyboardRemove(),
-    #         )
-    # else:
-    #     update.message.reply_text(
-    #         "{} Unsuccessfully {}".format(context.user_data["task"], option + "d"),
-    #         reply_markup=ReplyKeyboardRemove(),
-    #     )
-    # return ConversationHandler.END
-
-
-# def _get_id(tasks, item):
-#     for i in tasks:
-#         if item != "habit" and item != "reward":
-#             return {"id": i[1], "notes": i[2]}
-#         elif item == "reward":
-#             return {
-#                 "id": i[1],
-#                 "notes": i[2],
-#                 "value": i[3],
-#                 "down": i[4],
-#                 "counterUp": i[5],
-#                 "counterDown": i[6],
-#             }
-#     return None
-
-
-# def _create_keyboard(result):
-#     output = []
-#     for i in result:
-#         temp = [i[0]]
-#         output.append(temp)
-#     return output
-
 
 def cancel(update, context):
     update.message.reply_text(
-        "Bye! Let me know when you want to create a new task.\n"
-        "You can always do that using /create.",
+        "Bye! Let me know when you want to view any task.\n"
+        "You can always do that using /view.",
         reply_markup=ReplyKeyboardRemove(),
     )
     update.message.reply_sticker(_motivation2_sticker)

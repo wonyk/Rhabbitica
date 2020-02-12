@@ -1,4 +1,3 @@
-import logging
 import api
 
 _coin_sticker = "CAADBQADMgADbc38AWOrA-yiyuDxFgQ"

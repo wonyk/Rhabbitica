@@ -1,8 +1,6 @@
 from telegram import (
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
 )
 from telegram.ext import CommandHandler, MessageHandler, Filters, ConversationHandler
 import api
@@ -135,69 +133,12 @@ def create_success(update, result):
         ),
         reply_markup=ReplyKeyboardRemove(),
     )
-    # others = _create_keyboard(_get_task("habit"))
-    # update.message.reply_text(
-    #     "Do not forget about these:\n - {}".format(
-    #         "\n - ".join([str(i[0]) for i in others])
-    #     ),
-    #     reply_markup=ReplyKeyboardRemove(),
-    # )
-    # schedule.every(120).seconds.do(remind_habits, update, context)
-    # ScheduleThread().start()
-
-
-# def _create_keyboard(result):
-#     output = []
-#     for i in result:
-#         temp = [i[0]]
-#         output.append(temp)
-#     return output
-
-
-# def _get_task(title):
-#     result = []
-#     if title == "todo":
-#         result = api.get_todo()
-#         logging.info(result)
-#     elif title == "habit":
-#         result = api.get_habits()
-#     elif title == "daily":
-#         result = api.get_dailys()
-#     elif title == "reward":
-#         result = api.get_rewards()
-#     return result
-
-
-# def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
-#     menu = [buttons[i : i + n_cols] for i in range(0, len(buttons), n_cols)]
-#     if header_buttons:
-#         menu.insert(0, [header_buttons])
-#     if footer_buttons:
-#         menu.append([footer_buttons])
-#     return menu
-
-
-# def remind_habits(update, context):
-#     task_list = _get_task("habit")
-#     for task in task_list:
-#         # Show the task with the option to mark the item as done // not done.
-#         keyboard = [
-#             InlineKeyboardButton("Did it", callback_data="1" + task[1]),
-#             InlineKeyboardButton("Didn't do it", callback_data="2" + task[1]),
-#         ]
-#         reply_markup = InlineKeyboardMarkup(build_menu(keyboard, n_cols=1))
-#         logging.info("Printing: " + task[0])
-#         context.bot.send_message(
-#             chat_id=update.message.chat.id,
-#             text="Did you {}".format(task[0]),
-#             reply_markup=reply_markup,
-#         )
 
 
 def cancel(update, context):
     update.message.reply_text(
         "Bye! Let me know when you want to create a new task.\n"
-        "You can always do that using /create",
+        "You can always do that using /create.",
         reply_markup=ReplyKeyboardRemove(),
     )
     update.message.reply_sticker(_motivation2_sticker)

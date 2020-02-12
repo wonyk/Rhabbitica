@@ -1,5 +1,4 @@
 import logging
-import json
 import os
 
 # Import script files
@@ -16,58 +15,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from telegram import (
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
-    ParseMode,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-)
 from telegram.ext import (
     Updater,
     CommandHandler,
-    MessageHandler,
-    Filters,
-    ConversationHandler,
-    CallbackQueryHandler,
 )
-
-# import schedule
-# import time
-# import threading
-# import re
-# import random
-
-# class ScheduleThread(threading.Thread):
-#     def __init__(self, *pargs, **kwargs):
-#         super().__init__(*pargs, daemon=True, name="scheduler", **kwargs)
-
-#     def run(self):
-#         while True:
-#             schedule.run_pending()
-#             time.sleep(schedule.idle_seconds())
-
 
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-
-# declare constants
-_start_sticker = "CAADBQADLwADbc38AdU1wUDmBM3jFgQ"
-_completed_sticker = "CAADBQADMAADbc38AexYNt85JrF1FgQ"
-_todo_sticker = "CAADBQADKwADbc38AQcVcPeIfxqcFgQ"
-_habit_sticker = "CAADBQADKgADbc38ASR-zdsxRORsFgQ"
-_daily_sticker = "CAADBQADKQADbc38AYPOBlWsse41FgQ"
-_all_daily_sticker = "CAADBQADKAADbc38AeLNuuOwBynSFgQ"
-_motivation_sticker = "CAADBQADLAADbc38AR9Fg89mOGwIFgQ"
-_motivation2_sticker = "CAADBQADLQADbc38Acph7HcoKMhCFgQ"
-_motivation3_sticker = "CAADBQADLgADbc38AWvtjZz2orqBFgQ"
-_motivation_stickers = [_motivation_sticker, _motivation2_sticker, _motivation3_sticker]
-_level_up_sticker = "CAADBQADMQADbc38AeYQ8SMwNfVWFgQ"
-_coin_sticker = "CAADBQADMgADbc38AWOrA-yiyuDxFgQ"
-_reward_sticker = "CAADBQADMwADbc38Ab8X1fBrA7qZFgQ"
 
 def error(update, context):
     logging.warning('Update "%s" caused error "%s"', update, context.error)

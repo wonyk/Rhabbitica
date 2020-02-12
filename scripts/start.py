@@ -1,6 +1,5 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters, ConversationHandler
 import api
-import logging
 from job import set_reminders
 
 SET_USERNAME, SET_USERPASS = range(2)
@@ -15,9 +14,6 @@ def start(update, context):
         "\n\nPlease key in your Habitica username or email:",
     )
     return SET_USERNAME
-    # schedule.every(_quote_time).seconds.do(quote_gen, update, context)
-    # schedule.every(_quote_pic_time).seconds.do(quote_pic_gen, update, context)
-    # ScheduleThread().start()
 
 
 # Function linked to SET_USERNAME or redirect if login fails
@@ -62,7 +58,7 @@ def get_userpass(update, context):
         return ConversationHandler.END
     else:
         update.message.reply_markdown(
-            "Your email address / username or password is incorrect. Please try again."
+            "*Your email address / username or password is incorrect. Please try again.*"
             "\n\nPlease key in your Habitica username or email",
         )
         return SET_USERNAME
