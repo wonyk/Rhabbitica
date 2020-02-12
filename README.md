@@ -57,4 +57,4 @@ I would like to thank my teammates during Hack&Roll 2020 for working closely to 
 
 Thank you to Eleanor for the wonderful ideas, stickers and graphics that made this project lively and beautiful.
 
-Also, I am grateful to Winston for coming out with this basic idea and guiding me through Python which not my main programming language.
+Also, I am grateful to Winston for coming out with this basic idea and guiding me through Python which is not my main programming language.
