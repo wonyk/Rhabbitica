@@ -46,15 +46,15 @@ However, I have removed the scheduled reminders asking users about the completio
 
 ## Contributing
 There are a few ways to contribute to this project and will always be welcomed:
-1. You can report new bugs by submitting a new [issue](https://github.com/wonyk/hackAndRoll2020/issues)
+1. You can report new bugs by submitting a new [issue](https://github.com/wonyk/Rhabbitica/issues)
 
-2. Improve the documentation by creating or improving the [Wiki](https://github.com/wonyk/hackAndRoll2020/wiki)
+2. Improve the documentation by creating or improving the [Wiki](https://github.com/wonyk/Rhabbitica/wiki)
 
-3. Making a [pull request](https://github.com/wonyk/hackAndRoll2020/pulls) to add in new functions
+3. Making a [pull request](https://github.com/wonyk/Rhabbitica/pulls) to add in new functions
 
 ## Credits
 I would like to thank my teammates during Hack&Roll 2020 for working closely to come out with the original repo.
 
 Thank you to Eleanor for the wonderful ideas, stickers and graphics that made this project lively and beautiful.
 
-Also, I am grateful to Winston for coming out with this basic idea and guiding me through Python which not my main programming language.
+Also, I am grateful to Winston for coming out with this basic idea and guiding me through Python which is not my main programming language.
